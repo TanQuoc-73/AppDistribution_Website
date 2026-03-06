@@ -155,7 +155,7 @@ export default function AdminProductsPage() {
                                         </div>
                                     </td>
                                     <td className="p-4 text-gray-500">{p.category}</td>
-                                    <td className="p-4 font-medium text-indigo-600">${p.price.toFixed(2)}</td>
+                                    <td className="p-4 font-medium text-indigo-600">${Number(p.price).toFixed(2)}</td>
                                     <td className="p-4 text-right">
                                         <button onClick={() => openEdit(p)} className="text-indigo-600 hover:text-indigo-800 font-medium mr-3 transition">
                                             Edit

@@ -72,7 +72,7 @@ export default function SearchBar() {
                             <img src={p.image} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium text-autumn-text truncate">{p.name}</p>
-                                <p className="text-xs text-autumn-accent font-semibold">${p.price.toFixed(2)}</p>
+                                <p className="text-xs text-autumn-accent font-semibold">${Number(p.price).toFixed(2)}</p>
                             </div>
                         </Link>
                     ))}
