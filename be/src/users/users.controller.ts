@@ -20,7 +20,7 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Update user profile' })
-    updateProfile(@Req() req, @Body() body: { name?: string; avatar?: string }) {
+    updateProfile(@Req() req, @Body() body: { username?: string; avatarUrl?: string }) {
         return this.usersService.updateProfile(req.user.id, body);
     }
 }

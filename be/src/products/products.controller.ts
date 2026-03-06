@@ -30,21 +30,21 @@ export class ProductsController {
         return this.productsService.getTrending();
     }
 
-    @Get('category/:slug')
-    @ApiOperation({ summary: 'Get products by category slug' })
-    getByCategory(@Param('slug') slug: string) {
-        return this.productsService.getByCategory(slug);
+    @Get('category/:name')
+    @ApiOperation({ summary: 'Get products by category name' })
+    getByCategory(@Param('name') name: string) {
+        return this.productsService.getByCategory(name);
     }
 
     @Get(':id')
     @ApiOperation({ summary: 'Get product by ID' })
-    findById(@Param('id', ParseIntPipe) id: number) {
+    findById(@Param('id') id: string) {
         return this.productsService.findById(id);
     }
 
     @Get(':id/versions')
     @ApiOperation({ summary: 'Get product versions' })
-    getVersions(@Param('id', ParseIntPipe) id: number) {
+    getVersions(@Param('id') id: string) {
         return this.productsService.getVersions(id);
     }
 
@@ -57,10 +57,10 @@ export class ProductsController {
         name: string;
         description: string;
         price: number;
-        image?: string;
-        screenshots?: string[];
-        categoryId: number;
-        developerId: number;
+        thumbnail?: string;
+        categoryId: string;
+        developerId: string;
+        releaseDate?: Date;
     }) {
         return this.productsService.create(body);
     }
@@ -71,7 +71,7 @@ export class ProductsController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create product version (admin/developer)' })
     createVersion(
-        @Param('id', ParseIntPipe) id: number,
+        @Param('id') id: string,
         @Body() body: { version: string; downloadUrl: string; fileSize?: number; changelog?: string },
     ) {
         return this.productsService.createVersion(id, body);
@@ -82,7 +82,7 @@ export class ProductsController {
     @Roles('ADMIN', 'DEVELOPER')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Update product (admin/developer)' })
-    update(@Param('id', ParseIntPipe) id: number, @Body() body: any) {
+    update(@Param('id') id: string, @Body() body: any) {
         return this.productsService.update(id, body);
     }
 
@@ -91,7 +91,7 @@ export class ProductsController {
     @Roles('ADMIN')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Delete product (admin)' })
-    delete(@Param('id', ParseIntPipe) id: number) {
+    delete(@Param('id') id: string) {
         return this.productsService.delete(id);
     }
 }

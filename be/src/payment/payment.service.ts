@@ -29,7 +29,7 @@ export class PaymentService {
     }
 
     // VNPay payment (mock)
-    async createVnpayPaymentUrl(orderId: number, amount: number) {
+    async createVnpayPaymentUrl(orderId: string, amount: number) {
         const tmnCode = this.config.get<string>('VNPAY_TMN_CODE');
         // In production: generate HMAC-signed URL with all VNPay params
         return {
@@ -38,7 +38,7 @@ export class PaymentService {
     }
 
     // Update order status after payment
-    async updateOrderStatus(orderId: number, status: 'COMPLETED' | 'CANCELLED') {
+    async updateOrderStatus(orderId: string, status: 'COMPLETED' | 'CANCELLED') {
         return this.prisma.order.update({
             where: { id: orderId },
             data: { status },

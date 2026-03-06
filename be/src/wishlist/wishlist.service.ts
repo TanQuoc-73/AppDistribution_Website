@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export class WishlistService {
     constructor(private prisma: PrismaService) { }
 
-    async add(userId: number, productId: number) {
+    async add(userId: string, productId: string) {
         return this.prisma.wishlist.upsert({
             where: { userId_productId: { userId, productId } },
             create: { userId, productId },
@@ -14,11 +14,11 @@ export class WishlistService {
         });
     }
 
-    async remove(id: number) {
+    async remove(id: string) {
         return this.prisma.wishlist.delete({ where: { id } });
     }
 
-    async findByUser(userId: number) {
+    async findByUser(userId: string) {
         return this.prisma.wishlist.findMany({
             where: { userId },
             include: { product: true },

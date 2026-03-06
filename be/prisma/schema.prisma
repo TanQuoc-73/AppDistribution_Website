@@ -1,154 +1,158 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid()) @db.Uuid
   email     String   @unique
-  password  String
-  name      String
-  avatar    String?
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  username  String?  @unique
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  developer  Developer?
-  orders     Order[]
-  reviews    Review[]
-  wishlist   Wishlist[]
-  library    UserLibrary[]
+  orders   Order[]
+  reviews  Review[]
+  library  UserLibrary[]
+  wishlist Wishlist[]
+
+  @@map("users")
 }
 
 model Developer {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @unique
-  companyName String?
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
   website     String?
-  bio         String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  user     User      @relation(fields: [userId], references: [id])
   products Product[]
+
+  @@map("developers")
 }
 
 model Category {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  slug     String    @unique
-  icon     String?
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique
+
   products Product[]
+
+  @@map("categories")
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(uuid()) @db.Uuid
   name        String
-  description String
-  price       Float
-  image       String?
-  screenshots String[]
-  rating      Float    @default(0)
-  downloads   Int      @default(0)
-  categoryId  Int
-  developerId Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String?
+  price       Decimal  @db.Decimal(10,2)
+  developerId String?  @db.Uuid @map("developer_id")
+  categoryId  String?  @db.Uuid @map("category_id")
+  thumbnail   String?
+  releaseDate DateTime? @db.Date @map("release_date")
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  category   Category         @relation(fields: [categoryId], references: [id])
-  developer  Developer        @relation(fields: [developerId], references: [id])
-  versions   ProductVersion[]
-  reviews    Review[]
-  orderItems OrderItem[]
-  wishlist   Wishlist[]
-  library    UserLibrary[]
+  developer Developer? @relation(fields: [developerId], references: [id])
+  category  Category?  @relation(fields: [categoryId], references: [id])
+
+  versions    ProductVersion[]
+  reviews     Review[]
+  orderItems  OrderItem[]
+  library     UserLibrary[]
+  wishlist    Wishlist[]
+  screenshots ProductScreenshot[]
+
+  @@map("products")
 }
 
 model ProductVersion {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(uuid()) @db.Uuid
+  productId   String   @db.Uuid @map("product_id")
   version     String
-  downloadUrl String
-  fileSize    Int?
   changelog   String?
-  productId   Int
-  createdAt   DateTime @default(now())
+  downloadUrl String?  @map("download_url")
+  fileSize    BigInt?  @map("file_size")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   product Product @relation(fields: [productId], references: [id])
+
+  @@map("product_versions")
+}
+
+model ProductScreenshot {
+  id        String @id @default(uuid()) @db.Uuid
+  productId String @db.Uuid @map("product_id")
+  imageUrl  String @map("image_url")
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("product_screenshots")
 }
 
 model Order {
-  id         Int         @id @default(autoincrement())
-  userId     Int
-  totalPrice Float
-  status     OrderStatus @default(PENDING)
-  paymentMethod String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid @map("user_id")
+  totalPrice Decimal? @db.Decimal(10,2) @map("total_price")
+  status     String   @default("pending")
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  user  User        @relation(fields: [userId], references: [id])
+  user  User @relation(fields: [userId], references: [id])
   items OrderItem[]
+
+  @@map("orders")
 }
 
 model OrderItem {
-  id        Int   @id @default(autoincrement())
-  orderId   Int
-  productId Int
-  price     Float
+  id        String  @id @default(uuid()) @db.Uuid
+  orderId   String  @db.Uuid @map("order_id")
+  productId String  @db.Uuid @map("product_id")
+  price     Decimal @db.Decimal(10,2)
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
 }
 
 model UserLibrary {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
-  createdAt DateTime @default(now())
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid @map("user_id")
+  productId    String   @db.Uuid @map("product_id")
+  licenseKey   String?  @map("license_key")
+  purchaseDate DateTime @default(now()) @map("purchase_date")
 
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
   @@unique([userId, productId])
+  @@map("user_library")
 }
 
 model Review {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid @map("user_id")
+  productId String   @db.Uuid @map("product_id")
   rating    Int
-  comment   String
-  userId    Int
-  productId Int
-  createdAt DateTime @default(now())
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
 
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
   @@unique([userId, productId])
+  @@map("reviews")
 }
 
 model Wishlist {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
-  createdAt DateTime @default(now())
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid @map("user_id")
+  productId String   @db.Uuid @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
 
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
   @@unique([userId, productId])
-}
-
-enum Role {
-  USER
-  ADMIN
-  DEVELOPER
-}
-
-enum OrderStatus {
-  PENDING
-  COMPLETED
-  CANCELLED
+  @@map("wishlists")
 }

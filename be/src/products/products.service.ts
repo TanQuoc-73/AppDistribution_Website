@@ -12,13 +12,12 @@ export class ProductsService {
             where.name = { contains: query.search, mode: 'insensitive' };
         }
         if (query?.category) {
-            where.category = { slug: query.category };
+            where.category = { name: query.category };
         }
 
         let orderBy: any = { createdAt: 'desc' };
         if (query?.sort === 'price-asc') orderBy = { price: 'asc' };
         else if (query?.sort === 'price-desc') orderBy = { price: 'desc' };
-        else if (query?.sort === 'popular') orderBy = { downloads: 'desc' };
 
         return this.prisma.product.findMany({
             where,
@@ -27,14 +26,15 @@ export class ProductsService {
         });
     }
 
-    async findById(id: number) {
+    async findById(id: string) {
         const product = await this.prisma.product.findUnique({
             where: { id },
             include: {
                 category: true,
-                developer: { include: { user: { select: { name: true } } } },
+                developer: true,
                 versions: { orderBy: { createdAt: 'desc' } },
-                reviews: { include: { user: { select: { name: true, avatar: true } } } },
+                reviews: { include: { user: { select: { username: true, avatarUrl: true } } } },
+                screenshots: true,
             },
         });
         if (!product) throw new NotFoundException('Product not found');
@@ -44,7 +44,7 @@ export class ProductsService {
     async getFeatured() {
         return this.prisma.product.findMany({
             take: 8,
-            orderBy: { rating: 'desc' },
+            orderBy: { createdAt: 'desc' },
             include: { category: true },
         });
     }
@@ -52,14 +52,14 @@ export class ProductsService {
     async getTrending() {
         return this.prisma.product.findMany({
             take: 8,
-            orderBy: { downloads: 'desc' },
+            orderBy: { createdAt: 'desc' },
             include: { category: true },
         });
     }
 
-    async getByCategory(slug: string) {
+    async getByCategory(name: string) {
         return this.prisma.product.findMany({
-            where: { category: { slug } },
+            where: { category: { name } },
             include: { category: true },
         });
     }
@@ -68,38 +68,38 @@ export class ProductsService {
         name: string;
         description: string;
         price: number;
-        image?: string;
-        screenshots?: string[];
-        categoryId: number;
-        developerId: number;
+        thumbnail?: string;
+        categoryId: string;
+        developerId: string;
+        releaseDate?: Date;
     }) {
         return this.prisma.product.create({ data });
     }
 
-    async update(id: number, data: Partial<{
+    async update(id: string, data: Partial<{
         name: string;
         description: string;
         price: number;
-        image: string;
-        screenshots: string[];
-        categoryId: number;
+        thumbnail: string;
+        categoryId: string;
+        releaseDate: Date;
     }>) {
         return this.prisma.product.update({ where: { id }, data });
     }
 
-    async delete(id: number) {
+    async delete(id: string) {
         return this.prisma.product.delete({ where: { id } });
     }
 
     // Product versions
-    async getVersions(productId: number) {
+    async getVersions(productId: string) {
         return this.prisma.productVersion.findMany({
             where: { productId },
             orderBy: { createdAt: 'desc' },
         });
     }
 
-    async createVersion(productId: number, data: {
+    async createVersion(productId: string, data: {
         version: string;
         downloadUrl: string;
         fileSize?: number;

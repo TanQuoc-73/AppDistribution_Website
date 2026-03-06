@@ -4,13 +4,11 @@ import { AuthService } from './auth.service.js';
 
 class RegisterDto {
     email: string;
-    password: string;
-    name: string;
+    username: string;
 }
 
 class LoginDto {
     email: string;
-    password: string;
 }
 
 @ApiTags('Auth')
@@ -21,12 +19,12 @@ export class AuthController {
     @Post('register')
     @ApiOperation({ summary: 'Register a new user' })
     register(@Body() dto: RegisterDto) {
-        return this.authService.register(dto.email, dto.password, dto.name);
+        return this.authService.register(dto.email, dto.username);
     }
 
     @Post('login')
     @ApiOperation({ summary: 'Login user' })
     login(@Body() dto: LoginDto) {
-        return this.authService.login(dto.email, dto.password);
+        return this.authService.login(dto.email);
     }
 }

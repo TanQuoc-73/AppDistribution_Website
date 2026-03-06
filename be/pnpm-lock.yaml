@@ -41,6 +41,9 @@ importers:
       '@prisma/client-runtime-utils':
         specifier: ^7.4.2
         version: 7.4.2
+      '@prisma/config':
+        specifier: ^7.4.2
+        version: 7.4.2
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0

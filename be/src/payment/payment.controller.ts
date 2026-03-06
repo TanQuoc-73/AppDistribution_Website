@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards.js';
 import { PaymentService } from './payment.service.js';
@@ -24,14 +24,14 @@ export class PaymentController {
 
     @Post('vnpay/create-url')
     @ApiOperation({ summary: 'Create VNPay payment URL' })
-    createVnpayUrl(@Body() body: { orderId: number; amount: number }) {
+    createVnpayUrl(@Body() body: { orderId: string; amount: number }) {
         return this.paymentService.createVnpayPaymentUrl(body.orderId, body.amount);
     }
 
     @Post('order/:id/status')
     @ApiOperation({ summary: 'Update order status after payment' })
     updateStatus(
-        @Param('id', ParseIntPipe) id: number,
+        @Param('id') id: string,
         @Body() body: { status: 'COMPLETED' | 'CANCELLED' },
     ) {
         return this.paymentService.updateOrderStatus(id, body.status);

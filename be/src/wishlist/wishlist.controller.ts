@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Body, Param, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards.js';
 import { WishlistService } from './wishlist.service.js';
@@ -12,13 +12,13 @@ export class WishlistController {
 
     @Post()
     @ApiOperation({ summary: 'Add product to wishlist' })
-    add(@Req() req, @Body() body: { productId: number }) {
+    add(@Req() req, @Body() body: { productId: string }) {
         return this.wishlistService.add(req.user.id, body.productId);
     }
 
     @Delete(':id')
     @ApiOperation({ summary: 'Remove from wishlist' })
-    remove(@Param('id', ParseIntPipe) id: number) {
+    remove(@Param('id') id: string) {
         return this.wishlistService.remove(id);
     }
 

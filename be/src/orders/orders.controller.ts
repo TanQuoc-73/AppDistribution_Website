@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, Body, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards.js';
 import { OrdersService } from './orders.service.js';
@@ -14,9 +14,9 @@ export class OrdersController {
     @ApiOperation({ summary: 'Create an order' })
     create(
         @Req() req,
-        @Body() body: { items: { productId: number; price: number }[]; paymentMethod?: string },
+        @Body() body: { items: { productId: string; price: number }[] },
     ) {
-        return this.ordersService.create(req.user.id, body.items, body.paymentMethod);
+        return this.ordersService.create(req.user.id, body.items);
     }
 
     @Get('user')
@@ -27,7 +27,7 @@ export class OrdersController {
 
     @Get(':id')
     @ApiOperation({ summary: 'Get order by ID' })
-    findById(@Param('id', ParseIntPipe) id: number) {
+    findById(@Param('id') id: string) {
         return this.ordersService.findById(id);
     }
 }

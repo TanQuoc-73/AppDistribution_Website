@@ -1,23 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class OrdersService {
     constructor(private prisma: PrismaService) { }
 
-    async create(userId: number, items: { productId: number; price: number }[], paymentMethod?: string) {
-        const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
+    async create(userId: string, items: { productId: string; price: number }[], totals?: { totalPrice: number }) {
+        const totalPrice = items.reduce((sum, item) => sum + parseFloat(item.price.toString()), 0);
 
         const order = await this.prisma.order.create({
             data: {
                 userId,
-                totalPrice,
-                paymentMethod,
+                totalPrice: new Prisma.Decimal(totalPrice),
                 status: 'COMPLETED',
                 items: {
                     create: items.map((item) => ({
                         productId: item.productId,
-                        price: item.price,
+                        price: new Prisma.Decimal(item.price),
                     })),
                 },
             },
@@ -36,7 +36,7 @@ export class OrdersService {
         return order;
     }
 
-    async findByUser(userId: number) {
+    async findByUser(userId: string) {
         return this.prisma.order.findMany({
             where: { userId },
             include: { items: { include: { product: true } } },
@@ -44,7 +44,7 @@ export class OrdersService {
         });
     }
 
-    async findById(id: number) {
+    async findById(id: string) {
         const order = await this.prisma.order.findUnique({
             where: { id },
             include: { items: { include: { product: true } } },

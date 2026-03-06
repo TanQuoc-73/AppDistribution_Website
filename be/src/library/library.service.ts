@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export class LibraryService {
     constructor(private prisma: PrismaService) { }
 
-    async getUserLibrary(userId: number) {
+    async getUserLibrary(userId: string) {
         const entries = await this.prisma.userLibrary.findMany({
             where: { userId },
             include: {
@@ -18,7 +18,7 @@ export class LibraryService {
                     },
                 },
             },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { purchaseDate: 'desc' },
         });
 
         return entries.map((entry) => ({
@@ -26,7 +26,7 @@ export class LibraryService {
             product: entry.product,
             latestVersion: entry.product.versions[0] ?? null,
             downloadUrl: entry.product.versions[0]?.downloadUrl ?? null,
-            addedAt: entry.createdAt,
+            addedAt: entry.purchaseDate,
         }));
     }
 }
