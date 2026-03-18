@@ -1,19 +1,35 @@
 export interface Product {
-    id: number;
+    id: string;            // UUID from backend
     name: string;
-    description: string;
+    description: string | null;
     price: number;
-    image: string;
-    screenshots?: string[];
+    thumbnail: string | null;
     rating?: number;
-    category: string;
-    developer: string;
-    downloads?: number;
+    categoryId: string | null;
+    category?: { id: string; name: string } | null;
+    developerId: string | null;
+    developer?: { id: string; name: string } | null;
+    releaseDate?: string | null;
+    createdAt: string;
+    screenshots?: ProductScreenshot[];
+    versions?: ProductVersion[];
+}
+
+export interface ProductScreenshot {
+    id: string;
+    imageUrl: string;
+}
+
+export interface ProductVersion {
+    id: string;
+    version: string;
+    changelog: string | null;
+    downloadUrl: string | null;
+    fileSize: number | null;
     createdAt: string;
 }
 
 export interface Category {
+    id: string;
     name: string;
-    slug: string;
-    icon?: string;
 }

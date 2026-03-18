@@ -1,30 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class UploadService {
-    private supabaseUrl: string;
-    private supabaseKey: string;
-    private bucket: string;
-
-    constructor(private config: ConfigService) {
-        this.supabaseUrl = this.config.get<string>('SUPABASE_URL', '');
-        this.supabaseKey = this.config.get<string>('SUPABASE_KEY', '');
-        this.bucket = this.config.get<string>('SUPABASE_BUCKET', 'uploads');
-    }
-
     async uploadFile(
         file: { originalname: string; buffer: Buffer; mimetype: string },
         folder: 'screenshots' | 'thumbnails' | 'installers',
     ): Promise<string> {
-        const fileName = `${folder}/${Date.now()}-${file.originalname}`;
+        const originalNameSafe = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const fileName = `${Date.now()}-${originalNameSafe}`;
+        const uploadDir = path.join(process.cwd(), 'uploads', folder);
+        
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        const filePath = path.join(uploadDir, fileName);
+        await fs.promises.writeFile(filePath, file.buffer);
 
-        // In production: upload to Supabase Storage
-        // const { data, error } = await supabase.storage
-        //   .from(this.bucket)
-        //   .upload(fileName, file.buffer, { contentType: file.mimetype });
-
-        // Mock: return a placeholder URL
-        return `${this.supabaseUrl}/storage/v1/object/public/${this.bucket}/${fileName}`;
+        // Store relative path in DB
+        return `uploads/${folder}/${fileName}`;
     }
 }

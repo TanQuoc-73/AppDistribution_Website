@@ -10,13 +10,13 @@ export default function CartPage() {
 
     if (items.length === 0) {
         return (
-            <main className="min-h-screen bg-gray-50">
+            <main className="min-h-screen bg-autumn-bg">
                 <Navbar />
                 <div className="max-w-7xl mx-auto px-6 py-24 text-center">
                     <div className="text-6xl mb-6">🛒</div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h1>
-                    <p className="text-gray-500 mb-6">Browse the store and add some amazing apps!</p>
-                    <Link href="/store" className="inline-block px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
+                    <h1 className="text-2xl font-bold text-autumn-text mb-2">Your cart is empty</h1>
+                    <p className="text-autumn-muted mb-6">Browse the store and add some amazing apps!</p>
+                    <Link href="/store" className="inline-block px-6 py-3 rounded-xl bg-autumn-primary text-white font-semibold hover:bg-autumn-primary-hover transition">
                         Browse Store
                     </Link>
                 </div>
@@ -37,22 +37,22 @@ export default function CartPage() {
                     {/* Cart items */}
                     <div className="lg:col-span-2 space-y-4">
                         {items.map((item) => (
-                            <div key={item.product.id} className="flex items-center gap-4 bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+                            <div key={item.product.id} className="flex items-center gap-4 bg-white rounded-2xl border border-autumn-border p-4 shadow-sm">
                                 <img
-                                    src={item.product.image}
+                                    src={item.product.thumbnail ?? "/images/app1.jpg"}
                                     alt={item.product.name}
                                     className="w-20 h-20 rounded-xl object-cover"
                                 />
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-gray-900 truncate">{item.product.name}</h3>
-                                    <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                                    <h3 className="font-semibold text-autumn-text truncate">{item.product.name}</h3>
+                                    <p className="text-sm text-autumn-muted">Digital License</p>
                                 </div>
-                                <p className="font-bold text-indigo-600 whitespace-nowrap">
-                                    ${(item.product.price * item.quantity).toFixed(2)}
+                                <p className="font-bold text-autumn-accent whitespace-nowrap">
+                                    ${(Number(item.product.price) * item.quantity).toFixed(2)}
                                 </p>
                                 <button
                                     onClick={() => removeFromCart(item.product.id)}
-                                    className="p-2 rounded-lg text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition"
+                                    className="p-2 rounded-lg text-autumn-muted hover:text-rose-500 hover:bg-rose-50 transition"
                                     title="Remove"
                                 >
                                     ✕
@@ -90,7 +90,7 @@ export default function CartPage() {
 
                         <Link
                             href="/checkout"
-                            className="block w-full py-3.5 rounded-xl bg-indigo-600 text-white text-center font-semibold hover:bg-indigo-700 hover:shadow-lg transition-all"
+                            className="block w-full py-3.5 rounded-xl bg-autumn-primary text-white text-center font-semibold hover:bg-autumn-primary-hover hover:shadow-lg transition-all"
                         >
                             Proceed to Checkout
                         </Link>

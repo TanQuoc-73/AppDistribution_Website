@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 type Props = {
-  id: number
+  id: string
   name: string
   price: number
   image: string

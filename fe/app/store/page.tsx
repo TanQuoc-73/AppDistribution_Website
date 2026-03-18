@@ -1,138 +1,217 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import Navbar from "@/components/layout/navbar"
 import Footer from "@/components/layout/footer"
 import ProductCard from "@/components/product/product-card"
+import ProductSkeleton from "@/components/product/product-skeleton"
+import { productService } from "@/services/product.service"
+import { useDebounce } from "@/hooks/useDebounce"
+import type { Product, Category } from "@/types/product"
 
-const allProducts = [
-    { id: 1, name: "AI Image Generator", price: 19.99, image: "/images/app1.jpg", rating: 4.8, category: "AI Tools" },
-    { id: 2, name: "Code Editor Pro", price: 29.99, image: "/images/app2.jpg", rating: 4.6, category: "Developer Tools" },
-    { id: 3, name: "Cloud Storage Plus", price: 9.99, image: "/images/app3.jpg", rating: 4.3, category: "Office" },
-    { id: 4, name: "Photo Retouch Studio", price: 14.99, image: "/images/app4.jpg", rating: 4.7, category: "Design" },
-    { id: 5, name: "Video Editor Pro", price: 39.99, image: "/images/app5.jpg", rating: 4.9, category: "Design" },
-    { id: 6, name: "3D Design Studio", price: 49.99, image: "/images/app6.jpg", rating: 4.5, category: "Design" },
-    { id: 7, name: "Music Producer Suite", price: 34.99, image: "/images/app7.jpg", rating: 4.4, category: "Design" },
-    { id: 8, name: "Task Manager Elite", price: 12.99, image: "/images/app8.jpg", rating: 4.7, category: "Office" },
-    { id: 9, name: "Space Explorer", price: 4.99, image: "/images/app1.jpg", rating: 4.2, category: "Game" },
-    { id: 10, name: "Git Dashboard", price: 19.99, image: "/images/app2.jpg", rating: 4.8, category: "Developer Tools" },
-    { id: 11, name: "ChatBot Builder", price: 24.99, image: "/images/app3.jpg", rating: 4.1, category: "AI Tools" },
-    { id: 12, name: "Spreadsheet Pro", price: 15.99, image: "/images/app4.jpg", rating: 4.0, category: "Office" },
-]
-
-const categories = ["All", "Game", "Developer Tools", "AI Tools", "Office", "Design"]
-const sortOptions = [
-    { label: "Popular", value: "popular" },
+const SORT_OPTIONS = [
     { label: "Newest", value: "newest" },
-    { label: "Price Low to High", value: "price-asc" },
-    { label: "Price High to Low", value: "price-desc" },
+    { label: "Price: Low → High", value: "price-asc" },
+    { label: "Price: High → Low", value: "price-desc" },
 ]
+
+const PAGE_SIZE = 12
 
 export default function StorePage() {
-    const [search, setSearch] = useState("")
-    const [category, setCategory] = useState("All")
-    const [maxPrice, setMaxPrice] = useState(100)
-    const [sort, setSort] = useState("popular")
+    const router = useRouter()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
 
-    const filtered = useMemo(() => {
-        let list = allProducts
+    // Read from URL
+    const [search, setSearch] = useState(searchParams.get("search") ?? "")
+    const [category, setCategory] = useState(searchParams.get("category") ?? "All")
+    const [sort, setSort] = useState(searchParams.get("sort") ?? "newest")
+    const [page, setPage] = useState(Number(searchParams.get("page") ?? 1))
 
-        if (search) {
-            list = list.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
-        }
-        if (category !== "All") {
-            list = list.filter((p) => p.category === category)
-        }
-        list = list.filter((p) => p.price <= maxPrice)
+    const [products, setProducts] = useState<Product[]>([])
+    const [categories, setCategories] = useState<Category[]>([])
+    const [total, setTotal] = useState(0)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
 
-        switch (sort) {
-            case "price-asc":
-                list = [...list].sort((a, b) => a.price - b.price)
-                break
-            case "price-desc":
-                list = [...list].sort((a, b) => b.price - a.price)
-                break
-            case "newest":
-                list = [...list].sort((a, b) => b.id - a.id)
-                break
-            default:
-                list = [...list].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
-        }
+    const debouncedSearch = useDebounce(search, 350)
 
-        return list
-    }, [search, category, maxPrice, sort])
+    // Sync URL params
+    const updateUrl = useCallback((params: Record<string, string | number>) => {
+        const sp = new URLSearchParams(searchParams.toString())
+        Object.entries(params).forEach(([k, v]) => {
+            if (v && String(v) !== "" && String(v) !== "All" && String(v) !== "1") {
+                sp.set(k, String(v))
+            } else {
+                sp.delete(k)
+            }
+        })
+        router.replace(`${pathname}?${sp.toString()}`, { scroll: false })
+    }, [pathname, router, searchParams])
+
+    // Fetch categories once
+    useEffect(() => {
+        productService.getCategories().then(setCategories).catch(() => { })
+    }, [])
+
+    // Fetch products whenever filters change
+    useEffect(() => {
+        setLoading(true)
+        setError("")
+        productService.getProducts({
+            search: debouncedSearch || undefined,
+            category: category !== "All" ? category : undefined,
+            sort,
+            page,
+            limit: PAGE_SIZE,
+        })
+            .then(({ data, total }) => {
+                setProducts(data)
+                setTotal(total)
+            })
+            .catch(() => setError("Failed to load products. Please try again."))
+            .finally(() => setLoading(false))
+    }, [debouncedSearch, category, sort, page])
+
+    // Reset page on filter change
+    const handleSearch = (v: string) => { setSearch(v); setPage(1); updateUrl({ search: v, category, sort, page: 1 }) }
+    const handleCategory = (v: string) => { setCategory(v); setPage(1); updateUrl({ search, category: v, sort, page: 1 }) }
+    const handleSort = (v: string) => { setSort(v); setPage(1); updateUrl({ search, category, sort: v, page: 1 }) }
+    const handlePage = (p: number) => { setPage(p); updateUrl({ search, category, sort, page: p }) }
+
+    const totalPages = Math.ceil(total / PAGE_SIZE)
 
     return (
-        <main className="min-h-screen bg-gray-50">
+        <main className="min-h-screen bg-autumn-bg">
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-6 py-10">
-
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8">Store</h1>
+                <div className="mb-8">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-autumn-text">Store</h1>
+                    {!loading && (
+                        <p className="text-sm text-autumn-muted mt-1">
+                            {total} {total === 1 ? "product" : "products"} found
+                        </p>
+                    )}
+                </div>
 
                 {/* Filters bar */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-8">
-
+                <div className="flex flex-col sm:flex-row gap-3 mb-8 flex-wrap">
                     {/* Search */}
                     <input
                         type="text"
                         placeholder="Search apps…"
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="flex-1 min-w-[200px] px-4 py-2.5 rounded-xl border border-autumn-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-autumn-primary/30 focus:border-autumn-primary transition"
                     />
 
                     {/* Category */}
                     <select
                         value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        className="px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                        onChange={(e) => handleCategory(e.target.value)}
+                        className="px-4 py-2.5 rounded-xl border border-autumn-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-autumn-primary/30 focus:border-autumn-primary transition"
                     >
+                        <option value="All">All Categories</option>
                         {categories.map((c) => (
-                            <option key={c} value={c}>{c}</option>
+                            <option key={c.id} value={c.name}>{c.name}</option>
                         ))}
                     </select>
-
-                    {/* Price filter */}
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm text-gray-600 whitespace-nowrap">Max $</label>
-                        <input
-                            type="range"
-                            min={0}
-                            max={100}
-                            value={maxPrice}
-                            onChange={(e) => setMaxPrice(Number(e.target.value))}
-                            className="w-28 accent-indigo-600"
-                        />
-                        <span className="text-sm font-medium text-gray-700 w-10">${maxPrice}</span>
-                    </div>
 
                     {/* Sort */}
                     <select
                         value={sort}
-                        onChange={(e) => setSort(e.target.value)}
-                        className="px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                        onChange={(e) => handleSort(e.target.value)}
+                        className="px-4 py-2.5 rounded-xl border border-autumn-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-autumn-primary/30 focus:border-autumn-primary transition"
                     >
-                        {sortOptions.map((o) => (
+                        {SORT_OPTIONS.map((o) => (
                             <option key={o.value} value={o.value}>{o.label}</option>
                         ))}
                     </select>
-
                 </div>
 
-                {/* Product grid */}
-                {filtered.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {filtered.map((p) => (
-                            <ProductCard key={p.id} id={p.id} name={p.name} price={p.price} image={p.image} rating={p.rating} />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-24 text-gray-400">
-                        <p className="text-lg">No products found.</p>
+                {/* Error */}
+                {error && (
+                    <div className="text-center py-12 text-rose-500">
+                        <p>{error}</p>
+                        <button
+                            onClick={() => { setPage(1); setSearch(""); setCategory("All") }}
+                            className="mt-4 px-4 py-2 rounded-lg bg-autumn-primary text-white text-sm hover:bg-autumn-primary-hover transition"
+                        >
+                            Reset filters
+                        </button>
                     </div>
                 )}
 
+                {/* Grid */}
+                {!error && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {loading
+                            ? Array.from({ length: PAGE_SIZE }).map((_, i) => <ProductSkeleton key={i} />)
+                            : products.length > 0
+                                ? products.map((p) => (
+                                    <ProductCard
+                                        key={p.id}
+                                        id={p.id}
+                                        name={p.name}
+                                        price={Number(p.price)}
+                                        image={p.thumbnail ?? "/images/app1.jpg"}
+                                        rating={p.rating}
+                                    />
+                                ))
+                                : (
+                                    <div className="col-span-full text-center py-24 text-autumn-muted">
+                                        <p className="text-lg">No products found.</p>
+                                        <p className="text-sm mt-2">Try adjusting your search or filters.</p>
+                                    </div>
+                                )
+                        }
+                    </div>
+                )}
+
+                {/* Pagination */}
+                {!loading && !error && totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2 mt-10">
+                        <button
+                            onClick={() => handlePage(page - 1)}
+                            disabled={page === 1}
+                            className="px-4 py-2 rounded-lg border border-autumn-border text-sm hover:bg-autumn-surface disabled:opacity-40 transition"
+                        >
+                            ← Prev
+                        </button>
+
+                        {Array.from({ length: totalPages }).map((_, i) => {
+                            const p = i + 1
+                            if (p === 1 || p === totalPages || Math.abs(p - page) <= 1) {
+                                return (
+                                    <button
+                                        key={p}
+                                        onClick={() => handlePage(p)}
+                                        className={`w-9 h-9 rounded-lg text-sm transition ${p === page
+                                            ? "bg-autumn-primary text-white font-semibold"
+                                            : "border border-autumn-border hover:bg-autumn-surface"
+                                            }`}
+                                    >
+                                        {p}
+                                    </button>
+                                )
+                            }
+                            if (Math.abs(p - page) === 2) {
+                                return <span key={p} className="text-autumn-muted text-sm">…</span>
+                            }
+                            return null
+                        })}
+
+                        <button
+                            onClick={() => handlePage(page + 1)}
+                            disabled={page === totalPages}
+                            className="px-4 py-2 rounded-lg border border-autumn-border text-sm hover:bg-autumn-surface disabled:opacity-40 transition"
+                        >
+                            Next →
+                        </button>
+                    </div>
+                )}
             </div>
 
             <Footer />

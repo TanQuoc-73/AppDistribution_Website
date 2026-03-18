@@ -24,7 +24,7 @@ export default function LoginPage() {
         setLoading(true)
         try {
             const res = await userService.login(email, password)
-            login(res.user, res.token)
+            login(res.user, res.accessToken, res.refreshToken)
             router.push("/")
         } catch (err: any) {
             const message = err?.response?.data?.message ?? "Invalid email or password"

@@ -9,6 +9,7 @@ import { useAuthStore } from "@/store/authStore"
 export default function RegisterPage() {
     const router = useRouter()
     const [email, setEmail] = useState("")
+    const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [error, setError] = useState("")
@@ -34,8 +35,8 @@ export default function RegisterPage() {
 
         setLoading(true)
         try {
-            const res = await userService.register(email, email, password)
-            login(res.user, res.token)
+            const res = await userService.register(email, username || email.split("@")[0], password)
+            login(res.user, res.accessToken, res.refreshToken)
             router.push("/")
         } catch (err: any) {
             const message = err?.response?.data?.message ?? "Failed to create account"
@@ -72,6 +73,16 @@ export default function RegisterPage() {
                         />
                     </div>
 
+                    <div>
+                        <label className="block text-sm font-medium text-autumn-text mb-1">Username</label>
+                        <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="w-full px-4 py-2.5 rounded-lg border border-autumn-border text-sm text-autumn-text focus:outline-none focus:ring-2 focus:ring-autumn-primary/30 focus:border-autumn-primary transition-all duration-200"
+                            placeholder="cooluser123"
+                        />
+                    </div>
                     <div>
                         <label className="block text-sm font-medium text-autumn-text mb-1">Password</label>
                         <input

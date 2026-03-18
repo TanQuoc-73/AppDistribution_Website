@@ -1,178 +1,315 @@
 "use client"
 
-import { useState } from "react"
-import { use } from "react"
+import { useState, useEffect, use } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import Navbar from "@/components/layout/navbar"
 import Footer from "@/components/layout/footer"
 import ProductGallery from "@/components/product/product-gallery"
-import ProductReviews from "@/components/product/product-reviews"
+import { productService } from "@/services/product.service"
+import { useCartStore } from "@/store/cartStore"
+import { useAuthStore } from "@/store/authStore"
+import type { Product } from "@/types/product"
+import api from "@/services/api"
 
-/* ── Mock data ────────────────────────────────────────────── */
-const mockProducts: Record<string, {
-    id: number
-    name: string
-    developer: string
-    description: string
-    price: number
-    rating: number
-    image: string
-    screenshots: string[]
-    reviews: { user: string; rating: number; comment: string; date: string }[]
-}> = {
-    "1": {
-        id: 1,
-        name: "AI Image Generator",
-        developer: "NovaTech Labs",
-        description:
-            "Transform your creative ideas into stunning images with our state-of-the-art AI engine. Supports multiple art styles, resolution up to 4K, batch processing, and seamless export to all popular formats. Perfect for designers, marketers, and content creators.",
-        price: 19.99,
-        rating: 4.8,
-        image: "/images/app1.jpg",
-        screenshots: ["/images/app1.jpg", "/images/app2.jpg", "/images/app3.jpg"],
-        reviews: [
-            { user: "Alice", rating: 5, comment: "Incredible quality! Changed my workflow completely.", date: "2026-02-15" },
-            { user: "Bob", rating: 4, comment: "Great tool, a few UI tweaks would make it perfect.", date: "2026-02-10" },
-            { user: "Carol", rating: 5, comment: "Best AI image tool I've ever used.", date: "2026-01-28" },
-        ],
-    },
-    "2": {
-        id: 2,
-        name: "Code Editor Pro",
-        developer: "DevStack Inc.",
-        description:
-            "A powerful code editor built for speed. Features intelligent autocompletion, real-time collaboration, built-in terminal, Git integration, and support for 50+ programming languages with customisable themes.",
-        price: 29.99,
-        rating: 4.6,
-        image: "/images/app2.jpg",
-        screenshots: ["/images/app2.jpg", "/images/app3.jpg", "/images/app4.jpg"],
-        reviews: [
-            { user: "Dave", rating: 5, comment: "Finally a lightweight yet powerful editor!", date: "2026-02-20" },
-            { user: "Eve", rating: 4, comment: "Love the Git integration.", date: "2026-02-05" },
-        ],
-    },
-}
-
-/* ── Star rating helper ───────────────────────────────────── */
 function Stars({ rating }: { rating: number }) {
     return (
         <div className="flex items-center gap-0.5">
             {[1, 2, 3, 4, 5].map((s) => (
-                <svg
-                    key={s}
-                    xmlns="http://www.w3.org/2000/svg"
-                    className={`h-5 w-5 ${s <= Math.round(rating) ? "text-amber-400" : "text-gray-300"}`}
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                >
+                <svg key={s} xmlns="http://www.w3.org/2000/svg"
+                    className={`h-5 w-5 ${s <= Math.round(rating) ? "text-amber-400" : "text-autumn-border"}`}
+                    viewBox="0 0 20 20" fill="currentColor">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
             ))}
-            <span className="ml-2 text-sm text-gray-500">{Number(rating).toFixed(1)}</span>
+            <span className="ml-2 text-sm text-autumn-muted">{Number(rating).toFixed(1)}</span>
         </div>
     )
 }
 
-/* ── Page component ───────────────────────────────────────── */
+type Review = { id: string; rating: number; comment: string | null; createdAt: string; user: { username: string | null; avatarUrl: string | null } }
+
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const [wishlisted, setWishlisted] = useState(false)
-    const [addedToCart, setAddedToCart] = useState(false)
-
     const { id } = use(params)
-    const product = mockProducts[id]
+    const router = useRouter()
+    const addToCart = useCartStore((s) => s.addToCart)
+    const { user, isLoggedIn } = useAuthStore()
 
-    if (!product) {
+    const [product, setProduct] = useState<Product | null>(null)
+    const [reviews, setReviews] = useState<Review[]>([])
+    const [loading, setLoading] = useState(true)
+    const [notFound, setNotFound] = useState(false)
+    const [addedToCart, setAddedToCart] = useState(false)
+    const [wishlisted, setWishlisted] = useState(false)
+    const [wishlistLoading, setWishlistLoading] = useState(false)
+    const [activeTab, setActiveTab] = useState<"overview" | "reviews" | "versions">("overview")
+
+    // Review form
+    const [reviewRating, setReviewRating] = useState(5)
+    const [reviewComment, setReviewComment] = useState("")
+    const [submittingReview, setSubmittingReview] = useState(false)
+
+    useEffect(() => {
+        setLoading(true)
+        productService.getProductById(id)
+            .then((p) => {
+                setProduct(p)
+                setReviews((p as any).reviews ?? [])
+            })
+            .catch(() => setNotFound(true))
+            .finally(() => setLoading(false))
+    }, [id])
+
+    const handleAddToCart = () => {
+        if (!product) return
+        addToCart(product)
+        setAddedToCart(true)
+        setTimeout(() => setAddedToCart(false), 2000)
+    }
+
+    const handleWishlist = async () => {
+        if (!isLoggedIn) { router.push("/auth/login"); return }
+        setWishlistLoading(true)
+        try {
+            if (wishlisted) {
+                await api.delete(`/wishlist/${id}`)
+                setWishlisted(false)
+            } else {
+                await api.post("/wishlist", { productId: id })
+                setWishlisted(true)
+            }
+        } catch { }
+        finally { setWishlistLoading(false) }
+    }
+
+    const handleReviewSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!isLoggedIn) { router.push("/auth/login"); return }
+        if (!reviewComment.trim()) return
+        setSubmittingReview(true)
+        try {
+            const res = await api.post("/reviews", { productId: id, rating: reviewRating, comment: reviewComment.trim() })
+            setReviews([res.data, ...reviews])
+            setReviewComment("")
+            setReviewRating(5)
+        } catch { }
+        finally { setSubmittingReview(false) }
+    }
+
+    if (loading) {
         return (
-            <main className="min-h-screen bg-gray-50">
+            <main className="min-h-screen bg-autumn-bg">
                 <Navbar />
-                <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-4">Product not found</h1>
-                    <Link href="/" className="text-indigo-600 hover:underline">Go back home</Link>
+                <div className="max-w-7xl mx-auto px-6 py-12 animate-pulse">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                        <div className="aspect-[4/3] rounded-2xl bg-autumn-surface" />
+                        <div className="space-y-4">
+                            <div className="h-10 bg-autumn-surface rounded w-3/4" />
+                            <div className="h-5 bg-autumn-surface rounded w-1/3" />
+                            <div className="h-8 bg-autumn-surface rounded w-1/4" />
+                        </div>
+                    </div>
                 </div>
                 <Footer />
             </main>
         )
     }
 
+    if (notFound || !product) {
+        return (
+            <main className="min-h-screen bg-autumn-bg">
+                <Navbar />
+                <div className="max-w-7xl mx-auto px-6 py-24 text-center">
+                    <h1 className="text-3xl font-bold text-autumn-text mb-4">Product not found</h1>
+                    <Link href="/store" className="text-autumn-primary hover:underline">← Back to Store</Link>
+                </div>
+                <Footer />
+            </main>
+        )
+    }
+
+    const images = [
+        product.thumbnail ?? "/images/app1.jpg",
+        ...(product.screenshots?.map((s) => s.imageUrl) ?? []),
+    ]
+
+    const avgRating = reviews.length
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+        : null
+
     return (
-        <main className="min-h-screen bg-gray-50">
+        <main className="min-h-screen bg-autumn-bg">
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-6 py-12">
+                {/* Breadcrumb */}
+                <nav className="text-sm text-autumn-muted mb-8 flex items-center gap-2">
+                    <Link href="/" className="hover:text-autumn-primary transition">Home</Link>
+                    <span>›</span>
+                    <Link href="/store" className="hover:text-autumn-primary transition">Store</Link>
+                    {product.category && (<><span>›</span><span>{product.category.name}</span></>)}
+                    <span>›</span>
+                    <span className="text-autumn-text font-medium">{product.name}</span>
+                </nav>
 
-                {/* ── Top section: Gallery + Info ────────────────────── */}
+                {/* Top: Gallery + Info */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <ProductGallery images={images} alt={product.name} />
 
-                    {/* Left — Gallery */}
-                    <ProductGallery images={[product.image, ...product.screenshots]} alt={product.name} />
-
-                    {/* Right — Product info */}
                     <div className="flex flex-col gap-5">
+                        <h1 className="text-3xl sm:text-4xl font-extrabold text-autumn-text">{product.name}</h1>
 
-                        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-                            {product.name}
-                        </h1>
+                        {product.developer && (
+                            <p className="text-sm text-autumn-muted">
+                                by <span className="font-medium text-autumn-primary">{product.developer.name}</span>
+                            </p>
+                        )}
 
-                        <p className="text-sm text-gray-500">
-                            by <span className="font-medium text-indigo-600">{product.developer}</span>
-                        </p>
+                        {avgRating !== null && <Stars rating={avgRating} />}
+                        <p className="text-xs text-autumn-muted">{reviews.length} {reviews.length === 1 ? "review" : "reviews"}</p>
 
-                        <Stars rating={product.rating} />
-
-                        <p className="text-3xl font-bold text-indigo-600">
+                        <p className="text-3xl font-bold text-autumn-accent">
                             ${Number(product.price).toFixed(2)}
                         </p>
+
+                        {product.category && (
+                            <span className="w-fit px-3 py-1 rounded-full bg-autumn-surface text-autumn-primary text-xs font-medium">
+                                {product.category.name}
+                            </span>
+                        )}
 
                         {/* Action buttons */}
                         <div className="flex flex-col sm:flex-row gap-3 mt-2">
                             <button
-                                onClick={() => setAddedToCart(true)}
+                                onClick={handleAddToCart}
                                 className={`flex-1 py-3.5 rounded-xl font-semibold text-base transition-all duration-300 ${addedToCart
                                     ? "bg-emerald-500 text-white"
-                                    : "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg"
+                                    : "bg-autumn-primary text-white hover:bg-autumn-primary-hover hover:shadow-lg hover:shadow-autumn-primary/30"
                                     }`}
                             >
                                 {addedToCart ? "✓ Added to Cart" : "Add to Cart"}
                             </button>
 
                             <button
-                                onClick={() => setWishlisted(!wishlisted)}
+                                onClick={handleWishlist}
+                                disabled={wishlistLoading}
                                 className={`flex-1 py-3.5 rounded-xl font-semibold text-base border-2 transition-all duration-300 ${wishlisted
                                     ? "border-rose-500 text-rose-500 bg-rose-50"
-                                    : "border-gray-300 text-gray-700 hover:border-rose-400 hover:text-rose-500"
-                                    }`}
+                                    : "border-autumn-border text-autumn-text hover:border-rose-400 hover:text-rose-500"
+                                    } disabled:opacity-60`}
                             >
                                 {wishlisted ? "♥ Wishlisted" : "♡ Wishlist"}
                             </button>
                         </div>
 
-                        {/* Description */}
-                        <div className="mt-6">
-                            <h2 className="text-lg font-bold text-gray-900 mb-2">Description</h2>
-                            <p className="text-gray-600 leading-relaxed">{product.description}</p>
-                        </div>
-
+                        {product.releaseDate && (
+                            <p className="text-xs text-autumn-muted">
+                                Released: {new Date(product.releaseDate).toLocaleDateString()}
+                            </p>
+                        )}
                     </div>
-
                 </div>
 
-                {/* ── Screenshots ───────────────────────────────────── */}
-                <section className="mt-16">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Screenshots</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {product.screenshots.map((src, idx) => (
-                            <div key={idx} className="rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-200">
-                                <img src={src} alt={`Screenshot ${idx + 1}`} className="w-full aspect-video object-cover" />
-                            </div>
+                {/* Tabs */}
+                <div className="mt-14">
+                    <div className="flex gap-1 border-b border-autumn-border mb-8">
+                        {(["overview", "reviews", "versions"] as const).map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`px-5 py-3 text-sm font-semibold capitalize transition-colors duration-200 border-b-2 -mb-[1px] ${activeTab === tab
+                                    ? "border-autumn-primary text-autumn-primary"
+                                    : "border-transparent text-autumn-muted hover:text-autumn-text"
+                                    }`}
+                            >
+                                {tab} {tab === "reviews" && `(${reviews.length})`}
+                            </button>
                         ))}
                     </div>
-                </section>
 
-                {/* ── Reviews ───────────────────────────────────────── */}
-                <section className="mt-16 mb-8">
-                    <ProductReviews reviews={product.reviews} />
-                </section>
+                    {/* Overview */}
+                    {activeTab === "overview" && (
+                        <div className="prose prose-sm max-w-none text-autumn-text">
+                            <p className="leading-relaxed text-autumn-muted whitespace-pre-wrap">
+                                {product.description ?? "No description provided."}
+                            </p>
+                        </div>
+                    )}
 
+                    {/* Reviews */}
+                    {activeTab === "reviews" && (
+                        <div className="space-y-6">
+                            {/* Submit form */}
+                            <form onSubmit={handleReviewSubmit} className="bg-white rounded-xl border border-autumn-border p-6 shadow-sm">
+                                <h3 className="font-semibold text-autumn-text mb-3">Write a Review</h3>
+                                <div className="flex items-center gap-1 mb-3">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <button key={s} type="button" onClick={() => setReviewRating(s)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                className={`h-6 w-6 transition-colors ${s <= reviewRating ? "text-amber-400" : "text-autumn-border"} hover:text-amber-300`}
+                                                viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        </button>
+                                    ))}
+                                </div>
+                                <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)}
+                                    rows={3} placeholder={isLoggedIn ? "Share your experience…" : "Please login to write a review"}
+                                    disabled={!isLoggedIn}
+                                    className="w-full px-4 py-3 rounded-lg border border-autumn-border text-sm focus:outline-none focus:ring-2 focus:ring-autumn-primary/30 transition resize-none mb-3 disabled:bg-gray-50"
+                                />
+                                <button type="submit" disabled={submittingReview || !isLoggedIn}
+                                    className="px-6 py-2.5 rounded-lg bg-autumn-primary text-white text-sm font-semibold hover:bg-autumn-primary-hover transition disabled:opacity-60">
+                                    {submittingReview ? "Submitting…" : "Submit Review"}
+                                </button>
+                            </form>
+
+                            {/* Review list */}
+                            {reviews.length === 0 ? (
+                                <p className="text-autumn-muted text-center py-8">No reviews yet. Be the first!</p>
+                            ) : (
+                                reviews.map((r) => (
+                                    <div key={r.id} className="bg-white rounded-xl border border-autumn-border p-5 shadow-sm">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-8 h-8 rounded-full bg-autumn-primary flex items-center justify-center text-white text-xs font-bold">
+                                                {(r.user.username ?? "U")[0].toUpperCase()}
+                                            </div>
+                                            <span className="font-medium text-autumn-text text-sm">{r.user.username ?? "Anonymous"}</span>
+                                            <Stars rating={r.rating} />
+                                            <span className="ml-auto text-xs text-autumn-muted">{new Date(r.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                        {r.comment && <p className="text-autumn-muted text-sm leading-relaxed">{r.comment}</p>}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
+
+                    {/* Versions */}
+                    {activeTab === "versions" && (
+                        <div className="space-y-4">
+                            {(!product.versions || product.versions.length === 0) ? (
+                                <p className="text-autumn-muted text-center py-8">No version history available.</p>
+                            ) : (
+                                product.versions.map((v) => (
+                                    <div key={v.id} className="bg-white rounded-xl border border-autumn-border p-5 shadow-sm flex items-start gap-4">
+                                        <span className="px-3 py-1 rounded-full bg-autumn-surface text-autumn-primary text-xs font-bold mt-0.5">{v.version}</span>
+                                        <div className="flex-1">
+                                            {v.changelog && <p className="text-sm text-autumn-muted">{v.changelog}</p>}
+                                            <p className="text-xs text-autumn-muted mt-1">{new Date(v.createdAt).toLocaleDateString()}</p>
+                                        </div>
+                                        {v.downloadUrl && (
+                                            <a href={v.downloadUrl} target="_blank" rel="noreferrer"
+                                                className="px-4 py-2 rounded-lg bg-autumn-primary text-white text-xs font-semibold hover:bg-autumn-primary-hover transition">
+                                                Download
+                                            </a>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             <Footer />

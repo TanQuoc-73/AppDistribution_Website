@@ -3,25 +3,9 @@
 import Link from "next/link"
 import SearchBar from "@/components/store/search-bar"
 import { useAuthStore } from "@/store/authStore"
-import { useEffect } from "react"
-import { userService } from "@/services/user.service"
 
 export default function Navbar() {
-  const { user, token, login, logout } = useAuthStore()
-
-  // On first render, if we have a token but no user loaded yet, fetch profile
-  useEffect(() => {
-    if (!token || user) return
-
-    userService
-      .getProfile()
-      .then((profile) => {
-        login(profile, token)
-      })
-      .catch(() => {
-        logout()
-      })
-  }, [token, user, login, logout])
+  const { user, isLoggedIn, logout } = useAuthStore()
 
   return (
     <nav className="w-full border-b border-autumn-border bg-autumn-bg/95 backdrop-blur-sm sticky top-0 z-40">
@@ -53,10 +37,10 @@ export default function Navbar() {
             🛒 Cart
           </Link>
 
-          {user ? (
+          {isLoggedIn && user ? (
             <div className="flex items-center gap-3">
               <span className="text-autumn-text font-medium">
-                Hi, {user.name}
+                Hi, {user.username ?? user.email}
               </span>
               <button
                 onClick={logout}
