@@ -22,6 +22,12 @@ export class WishlistController {
         return this.wishlistService.remove(id);
     }
 
+    @Delete('product/:productId')
+    @ApiOperation({ summary: 'Remove from wishlist by productId (current user)' })
+    removeByProduct(@Req() req, @Param('productId') productId: string) {
+        return this.wishlistService.removeByProduct(req.user.id, productId);
+    }
+
     @Get('user')
     @ApiOperation({ summary: 'Get user wishlist' })
     findByUser(@Req() req) {

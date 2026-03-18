@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import Navbar from "@/components/layout/navbar"
 import Footer from "@/components/layout/footer"
 import { wishlistService } from "@/services/wishlist.service"
 import { useCartStore } from "@/store/cartStore"
+import { useAuthStore } from "@/store/authStore"
 
 interface WishlistItem {
     id: string
@@ -21,17 +23,24 @@ interface WishlistItem {
 }
 
 export default function WishlistPage() {
+    const router = useRouter()
+    const { isLoggedIn, hasHydrated } = useAuthStore()
     const [items, setItems] = useState<WishlistItem[]>([])
     const [loading, setLoading] = useState(true)
     const [removing, setRemoving] = useState<string | null>(null)
     const addToCart = useCartStore((s) => s.addToCart)
 
     useEffect(() => {
+        if (!hasHydrated) return
+        if (!isLoggedIn) {
+            router.replace("/auth/login?redirect=/wishlist")
+            return
+        }
         wishlistService.getWishlist()
             .then(setItems)
             .catch(() => setItems([]))
             .finally(() => setLoading(false))
-    }, [])
+    }, [hasHydrated, isLoggedIn, router])
 
     const handleRemove = async (wishlistId: string) => {
         setRemoving(wishlistId)

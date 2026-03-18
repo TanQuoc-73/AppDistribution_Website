@@ -33,13 +33,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     const { id } = use(params)
     const router = useRouter()
     const addToCart = useCartStore((s) => s.addToCart)
+    const inCart = useCartStore((s) => s.items.some((it) => it.product.id === id))
     const { user, isLoggedIn } = useAuthStore()
 
     const [product, setProduct] = useState<Product | null>(null)
     const [reviews, setReviews] = useState<Review[]>([])
     const [loading, setLoading] = useState(true)
     const [notFound, setNotFound] = useState(false)
-    const [addedToCart, setAddedToCart] = useState(false)
     const [wishlisted, setWishlisted] = useState(false)
     const [wishlistLoading, setWishlistLoading] = useState(false)
     const [activeTab, setActiveTab] = useState<"overview" | "reviews" | "versions">("overview")
@@ -62,9 +62,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
     const handleAddToCart = () => {
         if (!product) return
+        if (inCart) {
+            router.push("/cart")
+            return
+        }
         addToCart(product)
-        setAddedToCart(true)
-        setTimeout(() => setAddedToCart(false), 2000)
     }
 
     const handleWishlist = async () => {
@@ -72,7 +74,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         setWishlistLoading(true)
         try {
             if (wishlisted) {
-                await api.delete(`/wishlist/${id}`)
+                await api.delete(`/wishlist/product/${id}`)
                 setWishlisted(false)
             } else {
                 await api.post("/wishlist", { productId: id })
@@ -182,12 +184,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         <div className="flex flex-col sm:flex-row gap-3 mt-2">
                             <button
                                 onClick={handleAddToCart}
-                                className={`flex-1 py-3.5 rounded-xl font-semibold text-base transition-all duration-300 ${addedToCart
+                                className={`flex-1 py-3.5 rounded-xl font-semibold text-base transition-all duration-300 ${inCart
                                     ? "bg-emerald-500 text-white"
                                     : "bg-autumn-primary text-white hover:bg-autumn-primary-hover hover:shadow-lg hover:shadow-autumn-primary/30"
                                     }`}
                             >
-                                {addedToCart ? "✓ Added to Cart" : "Add to Cart"}
+                                {inCart ? "✓ In Cart" : "Add to Cart"}
                             </button>
 
                             <button

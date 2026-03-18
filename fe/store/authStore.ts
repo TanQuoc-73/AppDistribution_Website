@@ -13,6 +13,7 @@ interface AuthState {
     accessToken: string | null;
     refreshToken: string | null;
     isLoggedIn: boolean;
+    hasHydrated: boolean;
 
     login: (user: AuthUser, accessToken: string, refreshToken: string) => void;
     logout: () => void;
@@ -27,6 +28,7 @@ export const useAuthStore = create<AuthState>()(
             accessToken: null,
             refreshToken: null,
             isLoggedIn: false,
+            hasHydrated: false,
 
             login: (user, accessToken, refreshToken) => {
                 set({ user, accessToken, refreshToken, isLoggedIn: true });
@@ -52,7 +54,13 @@ export const useAuthStore = create<AuthState>()(
                 accessToken: state.accessToken,
                 refreshToken: state.refreshToken,
                 isLoggedIn: state.isLoggedIn,
+                hasHydrated: state.hasHydrated,
             }),
+            onRehydrateStorage: () => (state) => {
+                if (state) {
+                    state.hasHydrated = true;
+                }
+            },
         }
     )
 );

@@ -18,6 +18,11 @@ export class WishlistService {
         return this.prisma.wishlist.delete({ where: { id } });
     }
 
+    async removeByProduct(userId: string, productId: string) {
+        const res = await this.prisma.wishlist.deleteMany({ where: { userId, productId } });
+        return { deleted: res.count };
+    }
+
     async findByUser(userId: string) {
         return this.prisma.wishlist.findMany({
             where: { userId },

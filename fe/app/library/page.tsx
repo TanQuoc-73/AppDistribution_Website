@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Navbar from "@/components/layout/navbar"
 import Footer from "@/components/layout/footer"
 import api from "@/services/api"
 import { productService } from "@/services/product.service"
+import { useAuthStore } from "@/store/authStore"
 
 interface LibraryItem {
     id: string
@@ -21,16 +23,27 @@ interface LibraryItem {
 }
 
 export default function LibraryPage() {
+    const router = useRouter()
+    const { isLoggedIn, hasHydrated } = useAuthStore()
     const [items, setItems] = useState<LibraryItem[]>([])
     const [loading, setLoading] = useState(true)
     const [downloading, setDownloading] = useState<string | null>(null)
 
     useEffect(() => {
+        // Đợi Zustand hydrate xong rồi mới quyết định redirect
+        if (!hasHydrated) return
+
+        // Nếu chưa đăng nhập thì chuyển sang trang login
+        if (!isLoggedIn) {
+            router.replace("/auth/login?redirect=/library")
+            return
+        }
+
         api.get("/library")
             .then((res) => setItems(Array.isArray(res.data) ? res.data : []))
             .catch(() => setItems([]))
             .finally(() => setLoading(false))
-    }, [])
+    }, [isLoggedIn, hasHydrated, router])
 
     const handleDownload = async (productId: string) => {
         setDownloading(productId)
