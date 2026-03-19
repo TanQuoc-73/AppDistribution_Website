@@ -33,6 +33,10 @@ export default function Navbar() {
             Library
           </Link>
 
+          <Link href="/wishlist" className="hover:text-autumn-text transition-colors duration-200">
+            💛 Wishlist
+          </Link>
+
           <Link href="/cart" className="hover:text-autumn-text transition-colors duration-200">
             🛒 Cart
           </Link>

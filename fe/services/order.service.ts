@@ -1,19 +1,35 @@
-import api from "./api";
-import type { Order } from "@/types/order";
+import api from "./api"
+
+export interface OrderItem {
+    productId: string
+    price: number
+}
+
+export interface Order {
+    id: string
+    totalPrice: number | string
+    status: string
+    createdAt: string
+    items: {
+        productId: string
+        price: number
+        product: { id: string; name: string }
+    }[]
+}
 
 export const orderService = {
-    createOrder: async (items: { productId: number; quantity: number }[]): Promise<Order> => {
-        const res = await api.post("/orders", { items });
-        return res.data;
+    async createOrder(items: OrderItem[]): Promise<Order> {
+        const res = await api.post<Order>("/orders", { items })
+        return res.data
     },
 
-    getOrders: async (): Promise<Order[]> => {
-        const res = await api.get("/orders");
-        return res.data;
+    async getMyOrders(): Promise<Order[]> {
+        const res = await api.get<Order[]>("/orders/user")
+        return res.data
     },
 
-    getOrderById: async (id: number): Promise<Order> => {
-        const res = await api.get(`/orders/${id}`);
-        return res.data;
+    async getOrderById(id: string): Promise<Order> {
+        const res = await api.get<Order>(`/orders/${id}`)
+        return res.data
     },
-};
+}

@@ -35,6 +35,10 @@ export const useAuthStore = create<AuthState>()(
             },
 
             logout: () => {
+                // Clear cookie so middleware also blocks protected routes
+                if (typeof document !== "undefined") {
+                    document.cookie = "token=; path=/; max-age=0; SameSite=Lax"
+                }
                 set({ user: null, accessToken: null, refreshToken: null, isLoggedIn: false });
             },
 
