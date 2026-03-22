@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-const protectedPaths = ["/library", "/checkout", "/dashboard", "/wishlist"]
+const protectedPaths = ["/checkout", "/dashboard", "/wishlist"]
 
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
@@ -27,5 +27,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/library/:path*", "/checkout/:path*", "/dashboard/:path*", "/wishlist/:path*"],
+    matcher: ["/checkout/:path*", "/dashboard/:path*", "/wishlist/:path*"],
 }
