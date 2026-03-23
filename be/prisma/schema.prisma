@@ -1,0 +1,483 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  user
+  developer
+  admin
+
+  @@map("user_role")
+}
+
+enum ProductStatus {
+  draft
+  pending_review
+  active
+  inactive
+  rejected
+
+  @@map("product_status")
+}
+
+enum OrderStatus {
+  pending
+  completed
+  cancelled
+  refunded
+
+  @@map("order_status")
+}
+
+enum PaymentStatus {
+  pending
+  completed
+  failed
+  refunded
+
+  @@map("payment_status")
+}
+
+enum PaymentMethod {
+  credit_card
+  paypal
+  wallet
+  free
+
+  @@map("payment_method")
+}
+
+enum MediaType {
+  image
+  video
+  screenshot
+
+  @@map("media_type")
+}
+
+enum RefundStatus {
+  pending
+  approved
+  rejected
+
+  @@map("refund_status")
+}
+
+enum NotificationType {
+  order
+  refund
+  review
+  system
+  promotion
+
+  @@map("notification_type")
+}
+
+enum AgeRating {
+  everyone
+  teen
+  mature
+  adults_only
+
+  @@map("age_rating")
+}
+
+enum CouponType {
+  percentage
+  fixed_amount
+
+  @@map("coupon_type")
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model Profile {
+  id          String    @id @db.Uuid
+  username    String    @unique @db.VarChar(50)
+  displayName String?   @map("display_name") @db.VarChar(100)
+  avatarUrl   String?   @map("avatar_url")
+  bio         String?
+  role        UserRole  @default(user)
+  walletBalance Decimal @default(0) @map("wallet_balance") @db.Decimal(12, 2)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  developer       Developer?
+  orders          Order[]
+  cart            Cart[]
+  library         UserLibrary[]
+  reviews         Review[]
+  reviewVotes     ReviewVote[]
+  wishlists       Wishlist[]
+  notifications   Notification[]
+  refunds         Refund[]
+  downloadHistory DownloadHistory[]
+
+  @@map("profiles")
+}
+
+model Developer {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId   String   @unique @map("profile_id") @db.Uuid
+  companyName String   @map("company_name") @db.VarChar(100)
+  website     String?
+  description String?
+  logoUrl     String?  @map("logo_url")
+  isVerified  Boolean  @default(false) @map("is_verified")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  profile  Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@map("developers")
+}
+
+model Category {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String    @unique @db.VarChar(100)
+  slug        String    @unique @db.VarChar(100)
+  description String?
+  iconUrl     String?   @map("icon_url")
+  parentId    String?   @map("parent_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products ProductCategory[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique @db.VarChar(50)
+  slug      String   @unique @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  products ProductTag[]
+
+  @@map("tags")
+}
+
+model Product {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  developerId      String        @map("developer_id") @db.Uuid
+  name             String        @db.VarChar(200)
+  slug             String        @unique @db.VarChar(200)
+  shortDescription String?       @map("short_description") @db.VarChar(500)
+  description      String?
+  thumbnailUrl     String?       @map("thumbnail_url")
+  price            Decimal       @default(0) @db.Decimal(10, 2)
+  discountPercent  Int           @default(0) @map("discount_percent")
+  isFree           Boolean       @default(false) @map("is_free")
+  status           ProductStatus @default(draft)
+  ageRating        AgeRating     @default(everyone) @map("age_rating")
+  releaseDate      DateTime?     @map("release_date") @db.Date
+  totalDownloads   Int           @default(0) @map("total_downloads")
+  averageRating    Decimal       @default(0) @map("average_rating") @db.Decimal(3, 2)
+  reviewCount      Int           @default(0) @map("review_count")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  developer   Developer         @relation(fields: [developerId], references: [id])
+  categories  ProductCategory[]
+  tags        ProductTag[]
+  platforms   ProductPlatform[]
+  media       ProductMedia[]
+  versions    ProductVersion[]
+  orderItems  OrderItem[]
+  library     UserLibrary[]
+  reviews     Review[]
+  wishlists   Wishlist[]
+  cartItems   Cart[]
+
+  @@map("products")
+}
+
+model ProductCategory {
+  productId  String @map("product_id") @db.Uuid
+  categoryId String @map("category_id") @db.Uuid
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@map("product_categories")
+}
+
+model ProductTag {
+  productId String @map("product_id") @db.Uuid
+  tagId     String @map("tag_id") @db.Uuid
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+  @@map("product_tags")
+}
+
+model ProductPlatform {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId       String   @map("product_id") @db.Uuid
+  platformName    String   @map("platform_name") @db.VarChar(50)
+  minimumOs       String?  @map("minimum_os") @db.VarChar(100)
+  recommendedOs   String?  @map("recommended_os") @db.VarChar(100)
+  minimumRam      Int?     @map("minimum_ram")
+  recommendedRam  Int?     @map("recommended_ram")
+  storageRequired Int?     @map("storage_required")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, platformName])
+  @@map("product_platforms")
+}
+
+model ProductMedia {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId String    @map("product_id") @db.Uuid
+  mediaType MediaType @map("media_type")
+  url       String
+  caption   String?   @db.VarChar(200)
+  sortOrder Int       @default(0) @map("sort_order")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_media")
+}
+
+model ProductVersion {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId     String   @map("product_id") @db.Uuid
+  versionNumber String   @map("version_number") @db.VarChar(50)
+  releaseNotes  String?  @map("release_notes")
+  downloadUrl   String   @map("download_url")
+  fileSize      BigInt?  @map("file_size")
+  isLatest      Boolean  @default(false) @map("is_latest")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  product         Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  downloadHistory DownloadHistory[]
+
+  @@map("product_versions")
+}
+
+model Coupon {
+  id                String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code              String     @unique @db.VarChar(50)
+  couponType        CouponType @map("coupon_type")
+  discountValue     Decimal    @map("discount_value") @db.Decimal(10, 2)
+  minimumOrderValue Decimal    @default(0) @map("minimum_order_value") @db.Decimal(10, 2)
+  maxUsageCount     Int?       @map("max_usage_count")
+  usedCount         Int        @default(0) @map("used_count")
+  validFrom         DateTime   @map("valid_from")
+  validUntil        DateTime?  @map("valid_until")
+  isActive          Boolean    @default(true) @map("is_active")
+  createdAt         DateTime   @default(now()) @map("created_at")
+
+  orders Order[]
+
+  @@map("coupons")
+}
+
+model Cart {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId String   @map("profile_id") @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  addedAt   DateTime @default(now()) @map("added_at")
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, productId])
+  @@map("cart")
+}
+
+model Order {
+  id             String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId      String      @map("profile_id") @db.Uuid
+  couponId       String?     @map("coupon_id") @db.Uuid
+  status         OrderStatus @default(pending)
+  subtotal       Decimal     @db.Decimal(12, 2)
+  discountAmount Decimal     @default(0) @map("discount_amount") @db.Decimal(12, 2)
+  totalPrice     Decimal     @map("total_price") @db.Decimal(12, 2)
+  notes          String?
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  profile    Profile     @relation(fields: [profileId], references: [id])
+  coupon     Coupon?     @relation(fields: [couponId], references: [id])
+  orderItems OrderItem[]
+  payment    Payment?
+  refunds    Refund[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId      String  @map("order_id") @db.Uuid
+  productId    String  @map("product_id") @db.Uuid
+  priceAtOrder Decimal @map("price_at_order") @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([orderId, productId])
+  @@map("order_items")
+}
+
+model Payment {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId       String        @unique @map("order_id") @db.Uuid
+  amount        Decimal       @db.Decimal(12, 2)
+  paymentMethod PaymentMethod @map("payment_method")
+  status        PaymentStatus @default(pending)
+  transactionId String?       @map("transaction_id") @db.VarChar(200)
+  paidAt        DateTime?     @map("paid_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("payments")
+}
+
+model UserLibrary {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId   String   @map("profile_id") @db.Uuid
+  productId   String   @map("product_id") @db.Uuid
+  acquiredAt  DateTime @default(now()) @map("acquired_at")
+  lastLaunch  DateTime? @map("last_launch")
+  totalPlaytime Int    @default(0) @map("total_playtime")
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([profileId, productId])
+  @@map("user_library")
+}
+
+model Review {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId  String   @map("profile_id") @db.Uuid
+  productId  String   @map("product_id") @db.Uuid
+  rating     Int
+  title      String?  @db.VarChar(200)
+  content    String?
+  isRecommended Boolean? @map("is_recommended")
+  helpfulCount  Int    @default(0) @map("helpful_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  profile     Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  reviewVotes ReviewVote[]
+
+  @@unique([profileId, productId])
+  @@map("reviews")
+}
+
+model ReviewVote {
+  reviewId  String  @map("review_id") @db.Uuid
+  profileId String  @map("profile_id") @db.Uuid
+  isHelpful Boolean @map("is_helpful")
+
+  review  Review  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@id([reviewId, profileId])
+  @@map("review_votes")
+}
+
+model Wishlist {
+  profileId String   @map("profile_id") @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  addedAt   DateTime @default(now()) @map("added_at")
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, productId])
+  @@map("wishlists")
+}
+
+model Notification {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId        String           @map("profile_id") @db.Uuid
+  notificationType NotificationType @map("notification_type")
+  title            String           @db.VarChar(200)
+  message          String
+  isRead           Boolean          @default(false) @map("is_read")
+  relatedId        String?          @map("related_id") @db.Uuid
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Refund {
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId   String       @map("order_id") @db.Uuid
+  profileId String       @map("profile_id") @db.Uuid
+  reason    String
+  status    RefundStatus @default(pending)
+  reviewedBy String?     @map("reviewed_by") @db.Uuid
+  reviewNote String?     @map("review_note")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  profile Profile @relation(fields: [profileId], references: [id])
+
+  @@map("refunds")
+}
+
+model DownloadHistory {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId String   @map("profile_id") @db.Uuid
+  versionId String   @map("version_id") @db.Uuid
+  downloadedAt DateTime @default(now()) @map("downloaded_at")
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+
+  profile Profile        @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  version ProductVersion @relation(fields: [versionId], references: [id])
+
+  @@map("download_history")
+}
+
+model Banner {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title      String   @db.VarChar(200)
+  imageUrl   String   @map("image_url")
+  linkUrl    String?  @map("link_url")
+  sortOrder  Int      @default(0) @map("sort_order")
+  isActive   Boolean  @default(true) @map("is_active")
+  startsAt   DateTime? @map("starts_at")
+  endsAt     DateTime? @map("ends_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("banners")
+}
+
+model News {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String   @db.VarChar(200)
+  slug        String   @unique @db.VarChar(200)
+  content     String
+  thumbnailUrl String? @map("thumbnail_url")
+  isPublished Boolean  @default(false) @map("is_published")
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("news")
+}

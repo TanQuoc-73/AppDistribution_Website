@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0d0907;
+  --foreground: #f5e8d0;
 }
 
 @theme inline {
@@ -12,15 +12,102 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
 }
+
+/* ── Autumn Animations ─────────────────────────────────────── */
+
+@keyframes leafFall {
+  0%   { transform: translateY(-80px) rotate(0deg)   translateX(0px);  opacity: 0.7; }
+  20%  { transform: translateY(20vh)  rotate(120deg) translateX(40px);  opacity: 0.65; }
+  40%  { transform: translateY(40vh)  rotate(240deg) translateX(-30px); opacity: 0.5; }
+  60%  { transform: translateY(60vh)  rotate(360deg) translateX(50px);  opacity: 0.35; }
+  80%  { transform: translateY(80vh)  rotate(480deg) translateX(-15px); opacity: 0.2; }
+  100% { transform: translateY(108vh) rotate(600deg) translateX(0px);   opacity: 0; }
+}
+
+@keyframes floatUpDown {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(217,119,6,0.2), 0 0 40px rgba(217,119,6,0.08); }
+  50%       { box-shadow: 0 0 35px rgba(217,119,6,0.45), 0 0 70px rgba(217,119,6,0.18); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Utility Classes ───────────────────────────────────────── */
+
+.leaf-falling {
+  position: absolute;
+  pointer-events: none;
+  animation: leafFall linear infinite;
+}
+
+.animate-float      { animation: floatUpDown 4s ease-in-out infinite; }
+.animate-glow-pulse { animation: glowPulse 2.5s ease-in-out infinite; }
+.animate-fade-in-up { animation: fadeInUp 0.55s ease-out forwards; }
+.animate-slide-in-left { animation: slideInLeft 0.5s ease-out forwards; }
+
+/* ── Glass morphism ───────────────────────────────────────── */
+
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.glass-warm {
+  background: rgba(217,119,6,0.07);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(217,119,6,0.18);
+}
+
+.glass-dark {
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── Autumn Card ──────────────────────────────────────────── */
+
+.autumn-card {
+  background: linear-gradient(135deg,#1c0f07 0%,#140c04 100%);
+  border: 1px solid rgba(180,83,9,0.22);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+.autumn-card:hover {
+  border-color: rgba(217,119,6,0.45);
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.5), 0 0 30px rgba(217,119,6,0.12);
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: #0d0907; }
+::-webkit-scrollbar-thumb  { background: #78350f; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #d97706; }
