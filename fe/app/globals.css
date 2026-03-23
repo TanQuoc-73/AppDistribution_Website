@@ -1,70 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  /* Autumn palette */
-  --autumn-primary: #C56A3A;
-  --autumn-primary-hover: #A8552E;
-  --autumn-secondary: #D9A066;
-  --autumn-accent: #7A4E2D;
-  --autumn-bg: #FAF6F1;
-  --autumn-card: #FFFFFF;
-  --autumn-border: #E7DDD4;
-  --autumn-text: #3A2E2A;
-  --autumn-muted: #8A7A6A;
-  --autumn-surface: #F5F0EB;
-
-  --background: #FAF6F1;
-  --foreground: #3A2E2A;
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-autumn-primary: var(--autumn-primary);
-  --color-autumn-primary-hover: var(--autumn-primary-hover);
-  --color-autumn-secondary: var(--autumn-secondary);
-  --color-autumn-accent: var(--autumn-accent);
-  --color-autumn-bg: var(--autumn-bg);
-  --color-autumn-card: var(--autumn-card);
-  --color-autumn-border: var(--autumn-border);
-  --color-autumn-text: var(--autumn-text);
-  --color-autumn-muted: var(--autumn-muted);
-  --color-autumn-surface: var(--autumn-surface);
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  line-height: 1.7;
-}
-
-/* Falling leaf animation */
-@keyframes leaf-fall {
-  0% {
-    transform: translateY(-10%) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(110vh) rotate(720deg);
-    opacity: 0;
-  }
-}
-
-@keyframes leaf-sway {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(30px);
-  }
-}
-
-/* Subtle warm noise texture */
-.autumn-texture {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+  font-family: Arial, Helvetica, sans-serif;
 }
