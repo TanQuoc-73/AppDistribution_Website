@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { Leaf, TreeDeciduous, ShoppingCart } from 'lucide-react';
 
 const FLOATING_NUMBERS = ['-70%', '-55%', '-40%', '-30%', '-65%', '-48%', '-52%'];
 
@@ -28,10 +29,9 @@ export default function AutumnSaleBanner() {
           <div className="absolute -bottom-10 right-20 h-40 w-40 rounded-full bg-orange-400/20 blur-2xl" />
           <div className="absolute right-32 top-5 h-32 w-32 rounded-full bg-yellow-400/15 blur-xl" />
 
-          {/* Decorative leaves */}
-          <div className="absolute right-6 top-6 text-5xl opacity-30 rotate-12 select-none">🍂</div>
-          <div className="absolute left-8 bottom-6 text-4xl opacity-25 -rotate-12 select-none">🍁</div>
-          <div className="absolute right-24 bottom-4 text-3xl opacity-20 rotate-45 select-none">🍂</div>
+          <div className="absolute right-6 top-6 opacity-30 rotate-12 select-none"><Leaf className="h-12 w-12 text-orange-200" /></div>
+          <div className="absolute left-8 bottom-6 opacity-25 -rotate-12 select-none"><TreeDeciduous className="h-10 w-10 text-orange-200" /></div>
+          <div className="absolute right-24 bottom-4 opacity-20 rotate-45 select-none"><Leaf className="h-8 w-8 text-orange-200" /></div>
 
           {/* Floating discount numbers */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
@@ -54,7 +54,7 @@ export default function AutumnSaleBanner() {
           <div className="relative flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
             <div className="flex-1">
               <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold text-amber-200 backdrop-blur">
-                🍂 Limited Time Offer
+                <Leaf className="h-4 w-4" /> Limited Time Offer
               </div>
               <h2 className="text-3xl font-black text-white md:text-4xl lg:text-5xl">
                 Autumn Sale
@@ -92,7 +92,7 @@ export default function AutumnSaleBanner() {
                 href="/store"
                 className="rounded-2xl bg-white px-8 py-3.5 text-base font-bold text-orange-800 shadow-2xl transition-all hover:-translate-y-1 hover:bg-amber-50 hover:shadow-white/20"
               >
-                Shop the Sale 🛒
+                Shop the Sale <ShoppingCart className="inline h-4 w-4" />
               </Link>
               <p className="text-xs text-orange-200/60">
                 * Offer ends while stocks last

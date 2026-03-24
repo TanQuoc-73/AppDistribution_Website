@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useCartStore } from '@/stores/useCartStore';
 import { useAuth } from '@/hooks/useAuth';
+import { Wallet, BookOpen, Receipt, Heart, Bell, ShoppingCart } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { profilesApi } from '@/lib/api/endpoints';
 import { createClient } from '@/lib/supabase/client';
 
@@ -102,10 +104,7 @@ export default function ProfilePage() {
         {/* Wallet */}
         {profile && (
           <div className="mt-5 flex items-center gap-2 rounded-lg border border-stone-800 bg-stone-950/60 px-4 py-3">
-            <svg className="h-5 w-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
+            <Wallet className="h-5 w-5 text-amber-400" />
             <span className="text-sm text-stone-400">Wallet Balance</span>
             <span className="ml-auto font-semibold text-amber-400">
               ${parseFloat(profile.walletBalance ?? '0').toFixed(2)}
@@ -172,19 +171,19 @@ export default function ProfilePage() {
       <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-6">
         <h2 className="mb-4 text-lg font-semibold text-stone-200">Quick Links</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {[
-            { href: '/library',       label: 'My Library',       icon: '📚' },
-            { href: '/orders',        label: 'Order History',    icon: '🧾' },
-            { href: '/wishlist',      label: 'Wishlist',         icon: '❤️' },
-            { href: '/notifications', label: 'Notifications',    icon: '🔔' },
-            { href: '/cart',          label: 'Cart',             icon: '🛒' },
-          ].map((link) => (
+          {([
+            { href: '/library',       label: 'My Library',       icon: BookOpen },
+            { href: '/orders',        label: 'Order History',    icon: Receipt },
+            { href: '/wishlist',      label: 'Wishlist',         icon: Heart },
+            { href: '/notifications', label: 'Notifications',    icon: Bell },
+            { href: '/cart',          label: 'Cart',             icon: ShoppingCart },
+          ] as { href: string; label: string; icon: LucideIcon }[]).map((link) => (
             <a
               key={link.href}
               href={link.href}
               className="flex items-center gap-2 rounded-lg border border-stone-800 bg-stone-950/40 px-3 py-2.5 text-sm text-stone-300 transition hover:border-amber-800/50 hover:bg-stone-800/60 hover:text-amber-300"
             >
-              <span>{link.icon}</span>
+              <link.icon className="h-4 w-4" />
               {link.label}
             </a>
           ))}

@@ -12,7 +12,9 @@ datasource db {
 model Profile {
   id               String            @id @db.Uuid
   username         String            @unique
+  displayName      String?           @map("display_name")
   avatarUrl        String?           @map("avatar_url")
+  bio              String?
   role             UserRole          @default(user)
   is_active        Boolean           @default(true)
   walletBalance    Decimal           @default(0) @map("wallet_balance") @db.Decimal(12, 2)

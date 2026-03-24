@@ -176,3 +176,42 @@ export const newsApi = {
   getBySlug: (slug: string) =>
     api.get<ApiResponse<NewsArticle>>(`/news/${slug}`),
 };
+
+// ─── Admin ────────────────────────────────────────────────────────────────────
+
+export const adminApi = {
+  getStats: () =>
+    api.get<ApiResponse<{ totalUsers: number; totalProducts: number; totalOrders: number; totalRevenue: number }>>('/admin/stats'),
+
+  // Users
+  getUsers: (params?: { page?: number; limit?: number }) =>
+    api.get<PaginatedResponse<Profile>>('/admin/users', { params }),
+  updateUserRole: (id: string, role: string) =>
+    api.patch<ApiResponse<Profile>>(`/admin/users/${id}/role`, { role }),
+  toggleUserActive: (id: string) =>
+    api.patch<ApiResponse<Profile>>(`/admin/users/${id}/toggle-active`),
+  updateUser: (id: string, data: { username?: string; displayName?: string; bio?: string; role?: string }) =>
+    api.patch<ApiResponse<Profile>>(`/admin/users/${id}`, data),
+  deleteUser: (id: string) =>
+    api.delete<ApiResponse<null>>(`/admin/users/${id}`),
+
+  // Products
+  getProducts: (params?: { page?: number; limit?: number }) =>
+    api.get<PaginatedResponse<Product>>('/admin/products', { params }),
+  createProduct: (data: { name: string; slug: string; shortDescription?: string; description?: string; thumbnailUrl?: string; price?: number; discountPercent?: number; isFree?: boolean; ageRating?: string; developerId?: string }) =>
+    api.post<ApiResponse<Product>>('/admin/products', data),
+  updateProduct: (id: string, data: { name?: string; slug?: string; shortDescription?: string; description?: string; thumbnailUrl?: string; price?: number; discountPercent?: number; isFree?: boolean; is_active?: boolean; is_featured?: boolean; ageRating?: string }) =>
+    api.patch<ApiResponse<Product>>(`/admin/products/${id}`, data),
+  updateProductStatus: (id: string, isActive: boolean) =>
+    api.patch<ApiResponse<Product>>(`/admin/products/${id}/status`, { isActive }),
+  deleteProduct: (id: string) =>
+    api.delete<ApiResponse<null>>(`/admin/products/${id}`),
+
+  // Orders
+  getOrders: (params?: { page?: number; limit?: number }) =>
+    api.get<PaginatedResponse<Order>>('/admin/orders', { params }),
+  getOrderDetail: (id: string) =>
+    api.get<ApiResponse<Order>>(`/admin/orders/${id}`),
+  updateOrderStatus: (id: string, status: string) =>
+    api.patch<ApiResponse<Order>>(`/admin/orders/${id}/status`, { status }),
+};

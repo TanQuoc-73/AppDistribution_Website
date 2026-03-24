@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { ChevronRight, Newspaper, Palette, Trophy, Rocket } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
-const ARTICLES = [
+const ARTICLES: { id: number; category: string; date: string; title: string; excerpt: string; icon: LucideIcon; color: string; accent: string }[] = [
   {
     id: 1,
     category: 'Update',
@@ -8,7 +10,7 @@ const ARTICLES = [
     title: 'Aurora Creative Suite 5.0 Launched with AI Features',
     excerpt:
       'The flagship design platform ships its biggest update yet, bringing AI-powered background removal, smart selection, and generative fill tools.',
-    icon: '🎨',
+    icon: Palette,
     color: 'from-amber-950/80 to-stone-900',
     accent: '#d97706',
   },
@@ -19,7 +21,7 @@ const ARTICLES = [
     title: 'Autumn Dev Jam 2025 — Winners Announced',
     excerpt:
       'Over 300 developers participated in our seasonal game jam. Meet the top teams and their incredible creations built in just 72 hours.',
-    icon: '🏆',
+    icon: Trophy,
     color: 'from-orange-950/80 to-stone-900',
     accent: '#ea580c',
   },
@@ -30,7 +32,7 @@ const ARTICLES = [
     title: 'New Developer Portal & Revenue Dashboard',
     excerpt:
       'We rolled out a completely redesigned developer portal with real-time analytics, A/B testing tools, and improved payout management.',
-    icon: '🚀',
+    icon: Rocket,
     color: 'from-stone-800/80 to-stone-900',
     accent: '#b45309',
   },
@@ -44,7 +46,7 @@ export default function NewsSection() {
         <div className="mb-8 flex items-end justify-between">
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-amber-600">
-              📰 Stay Informed
+              <Newspaper className="inline h-3.5 w-3.5 -mt-0.5" /> Stay Informed
             </p>
             <h2 className="text-2xl font-bold text-stone-50 lg:text-3xl">Latest News</h2>
           </div>
@@ -53,9 +55,7 @@ export default function NewsSection() {
             className="flex items-center gap-1 text-sm text-amber-500 transition hover:text-amber-400"
           >
             All news
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+            <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
 
@@ -73,7 +73,7 @@ export default function NewsSection() {
                 className={`flex h-40 items-center justify-center bg-gradient-to-br ${article.color} relative overflow-hidden`}
               >
                 <span className="text-5xl transition-transform duration-500 group-hover:scale-110">
-                  {article.icon}
+                  <article.icon className="h-12 w-12" style={{ color: article.accent }} />
                 </span>
                 {/* Decorative lines */}
                 <div className="absolute inset-0 opacity-10"
@@ -110,9 +110,7 @@ export default function NewsSection() {
                     style={{ color: article.accent }}
                   >
                     Read more
-                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                    <ChevronRight className="h-3.5 w-3.5" />
                   </span>
                 </div>
               </div>

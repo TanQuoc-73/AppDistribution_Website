@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Search, SlidersHorizontal, Leaf } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
 import { useQuery } from '@tanstack/react-query';
 import { categoriesApi, tagsApi } from '@/lib/api/endpoints';
@@ -88,7 +89,7 @@ export default function StorePage() {
         <div className="container mx-auto max-w-7xl px-4 py-8">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-lg">
-              🍂
+              <Leaf className="h-5 w-5 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-amber-50">Store</h1>
@@ -101,9 +102,7 @@ export default function StorePage() {
           {/* Search bar */}
           <form onSubmit={handleSearch} className="flex gap-2">
             <div className="relative flex-1">
-              <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-amber-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-amber-400/60" />
               <input
                 type="text"
                 value={searchInput}
@@ -123,9 +122,7 @@ export default function StorePage() {
               onClick={() => setShowFilters((v) => !v)}
               className="flex items-center gap-1.5 rounded-xl border border-amber-800/30 bg-amber-950/30 px-4 py-2.5 text-sm text-amber-200/80 transition hover:border-amber-600/40 lg:hidden"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
+              <SlidersHorizontal className="h-4 w-4" />
               Bộ lọc
             </button>
           </form>

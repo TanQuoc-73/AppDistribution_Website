@@ -2,10 +2,10 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthListener } from '@/hooks/useAuth';
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
-  useAuth(); // subscribes to Supabase auth state globally
+  useAuthListener(); // single global Supabase auth subscription
   return <>{children}</>;
 }
 

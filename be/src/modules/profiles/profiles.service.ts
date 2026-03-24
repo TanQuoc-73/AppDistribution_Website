@@ -12,7 +12,15 @@ export class ProfilesService {
   }
 
   async update(id: string, data: { displayName?: string; avatarUrl?: string; bio?: string }) {
-    return this.prisma.profile.update({ where: { id }, data });
+    await this.findById(id);
+    return this.prisma.profile.update({
+      where: { id },
+      data: {
+        ...(data.displayName !== undefined && { displayName: data.displayName }),
+        ...(data.avatarUrl !== undefined && { avatarUrl: data.avatarUrl }),
+        ...(data.bio !== undefined && { bio: data.bio }),
+      },
+    });
   }
 
   async getWalletBalance(id: string) {

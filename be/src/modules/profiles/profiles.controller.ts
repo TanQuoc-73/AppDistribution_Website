@@ -19,7 +19,7 @@ export class ProfilesController {
 
   @Patch('me')
   @ApiOperation({ summary: 'Cập nhật hồ sơ' })
-  updateMe(@CurrentUser() user: any, @Body() body: { username?: string; avatarUrl?: string }) {
+  updateMe(@CurrentUser() user: any, @Body() body: { displayName?: string; avatarUrl?: string; bio?: string }) {
     return this.profilesService.update(user.id, body);
   }
 

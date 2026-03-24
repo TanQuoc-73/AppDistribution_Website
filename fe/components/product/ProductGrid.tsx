@@ -1,3 +1,4 @@
+import { Leaf } from 'lucide-react';
 import ProductCard from './ProductCard';
 import type { Product } from '@/types';
 
@@ -26,7 +27,7 @@ export default function ProductGrid({ products, isLoading }: ProductGridProps) {
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center py-20 text-center">
-        <div className="mb-4 text-4xl">🍂</div>
+        <div className="mb-4 text-4xl text-amber-200/60"><Leaf className="h-10 w-10 mx-auto" /></div>
         <p className="text-lg font-medium text-amber-200/60">Không tìm thấy ứng dụng nào</p>
         <p className="mt-1 text-sm text-amber-400/40">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
       </div>

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
+import { ChevronRight, Flame, Package, Medal, Award, Trophy } from 'lucide-react';
 import { productsApi } from '@/lib/api/endpoints';
 import type { Product } from '@/types';
 
@@ -31,7 +32,7 @@ export default function TrendingSection() {
         <div className="mb-8 flex items-end justify-between">
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-amber-600">
-              🔥 Most Downloaded
+              <Flame className="inline h-3.5 w-3.5 -mt-0.5" /> Most Downloaded
             </p>
             <h2 className="text-2xl font-bold text-stone-50 lg:text-3xl">Trending Now</h2>
           </div>
@@ -40,9 +41,7 @@ export default function TrendingSection() {
             className="flex items-center gap-1 text-sm text-amber-500 transition hover:text-amber-400"
           >
             See all
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+            <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
 
@@ -88,7 +87,7 @@ function TrendingCard({ product, rank }: { product: Product; rank: number }) {
       <div
         className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border text-sm font-bold ${rankColor}`}
       >
-        {rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : `#${rank}`}
+        {rank <= 3 ? [<Trophy key="g" className="h-4 w-4" />, <Award key="s" className="h-4 w-4" />, <Medal key="b" className="h-4 w-4" />][rank - 1] : `#${rank}`}
       </div>
 
       {/* Thumbnail */}
@@ -102,10 +101,10 @@ function TrendingCard({ product, rank }: { product: Product; rank: number }) {
           />
         ) : (
           <div
-            className="flex h-full items-center justify-center text-xl"
+            className="flex h-full items-center justify-center"
             style={{ background: 'linear-gradient(135deg,#1e1208,#2d1600)' }}
           >
-            📦
+            <Package className="h-6 w-6 text-amber-700/60" />
           </div>
         )}
       </div>

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
+import { Search, ShoppingCart, Leaf } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCartStore } from '@/stores/useCartStore';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -34,8 +35,8 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-stone-800/80 bg-stone-950/95 backdrop-blur">
       <div className="container mx-auto flex h-16 items-center gap-4 px-4">
         {/* Logo */}
-        <Link href="/" className="flex-shrink-0 text-xl font-black text-amber-400 hover:text-amber-300 transition">
-          🍂 AppDist
+        <Link href="/" className="flex items-center gap-1.5 flex-shrink-0 text-xl font-black text-amber-400 hover:text-amber-300 transition">
+          <Leaf className="h-5 w-5" /> AppDist
         </Link>
 
         {/* Nav */}
@@ -56,13 +57,7 @@ export default function Header() {
           className="mx-auto hidden flex-1 max-w-xs md:flex lg:max-w-sm"
         >
           <div className="relative w-full">
-            <svg
-              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
             <input
               ref={searchRef}
               type="search"
@@ -80,20 +75,14 @@ export default function Header() {
             onClick={() => setSearchOpen((o) => !o)}
             aria-label="Search"
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <Search className="h-5 w-5" />
           </button>
 
           {user ? (
             <>
               <Link href="/library" className="hidden text-sm text-stone-400 transition hover:text-amber-300 sm:block">Library</Link>
               <Link href="/cart" className="relative text-sm text-stone-400 transition hover:text-amber-300">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+                <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
                   <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
                     {cartCount}

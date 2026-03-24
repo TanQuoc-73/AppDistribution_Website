@@ -19,6 +19,7 @@ export interface Profile {
   avatarUrl: string | null;
   bio: string | null;
   role: UserRole;
+  isActive: boolean;
   walletBalance: string; // Decimal as string
   createdAt: string;
   updatedAt: string;
