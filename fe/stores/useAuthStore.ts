@@ -25,10 +25,27 @@ export const useAuthStore = create<AuthState>()(
       profile: null,
       isLoading: true,
       setUser: (user) => set({ user }),
-      setSession: (session) => set({ session }),
+      setSession: (session) => {
+        if (typeof window !== 'undefined') {
+          const token = session?.access_token ?? '';
+          if (token) {
+            const expires = session?.expires_at ? `; Expires=${new Date(session.expires_at * 1000).toUTCString()}` : '';
+            const secure = location.protocol === 'https:' ? '; Secure' : '';
+            document.cookie = `token=${token}; Path=/; SameSite=Lax${secure}${expires}`;
+          } else {
+            document.cookie = 'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+          }
+        }
+        set({ session });
+      },
       setProfile: (profile) => set({ profile }),
       setLoading: (isLoading) => set({ isLoading }),
-      reset: () => set({ user: null, session: null, profile: null, isLoading: false }),
+      reset: () => {
+        if (typeof window !== 'undefined') {
+          document.cookie = 'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+        }
+        set({ user: null, session: null, profile: null, isLoading: false });
+      },
     }),
     {
       name: 'auth-store',

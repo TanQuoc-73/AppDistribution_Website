@@ -8,7 +8,7 @@ export const AgeRating = {
   everyone: 'everyone',
   teen: 'teen',
   mature: 'mature',
-  adults_only: 'adults_only',
+  adult: 'adult',
 } as const;
 export type AgeRating = (typeof AgeRating)[keyof typeof AgeRating];
 

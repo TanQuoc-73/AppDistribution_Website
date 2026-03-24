@@ -13,7 +13,7 @@ export class ProductsService {
     const { page = 1, limit = 20, search, categoryId, developerId, isFree, minPrice, maxPrice, sort, tag } = query;
     const skip = (page - 1) * limit;
 
-    const where: any = { status: 'active' };
+    const where: any = { is_active: true };
 
     if (search) {
       where.OR = [
@@ -40,7 +40,7 @@ export class ProductsService {
         take: limit,
         orderBy,
         include: {
-          developer: { select: { id: true, companyName: true } },
+          developer: { select: { id: true, name: true } },
           categories: { include: { category: true } },
           tags: { include: { tag: true } },
           _count: { select: { reviews: true, library: true } },
@@ -49,11 +49,19 @@ export class ProductsService {
       this.prisma.product.count({ where }),
     ]);
 
-    return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+    const mapped = data.map((p) => ({
+      ...p,
+      reviewCount: p._count?.reviews ?? 0,
+      totalDownloads: p._count?.library ?? 0,
+      averageRating: '0',
+      _count: undefined,
+    }));
+
+    return { data: mapped, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
   }
 
   async findBySlug(slug: string) {
-const product = await this.prisma.product.findUnique({
+    const product = await this.prisma.product.findUnique({
       where: { slug },
       include: {
         developer: true,
@@ -66,7 +74,19 @@ const product = await this.prisma.product.findUnique({
       },
     });
     if (!product) throw new NotFoundException(`Product "${slug}" not found`);
-    return product;
+
+    const avgResult = await this.prisma.review.aggregate({
+      where: { productId: product.id },
+      _avg: { rating: true },
+    });
+
+    return {
+      ...product,
+      reviewCount: product._count?.reviews ?? 0,
+      totalDownloads: product._count?.library ?? 0,
+      averageRating: (avgResult._avg?.rating ?? 0).toFixed(1),
+      _count: undefined,
+    };
   }
 
   async findById(id: string) {
@@ -108,7 +128,7 @@ const product = await this.prisma.product.findUnique({
       case 'price_asc':  return { price: 'asc' as const };
       case 'price_desc': return { price: 'desc' as const };
       case 'rating':     return { reviews: { _count: 'desc' as const } };
-      case 'popular':    return { userLibrary: { _count: 'desc' as const } };
+      case 'popular':    return { library: { _count: 'desc' as const } };
       default:           return { createdAt: 'desc' as const };
     }
   }

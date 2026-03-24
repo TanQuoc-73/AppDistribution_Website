@@ -7,7 +7,7 @@ export class CartService {
 
   async getCart(userId: string) {
     return this.prisma.cart.findMany({
-      where: { profileId: userId },
+      where: { user_id: userId },
       include: {
         product: {
           select: { id: true, name: true, slug: true, thumbnailUrl: true, price: true, discountPercent: true, isFree: true },
@@ -18,25 +18,22 @@ export class CartService {
   }
 
   async addItem(userId: string, productId: string) {
-    const owned = await this.prisma.userLibrary.findUnique({
-      where: { profileId_productId: { profileId: userId, productId } },
+    const owned = await this.prisma.userLibrary.findFirst({
+      where: { user_id: userId, productId },
     });
     if (owned) throw new BadRequestException('You already own this product');
 
-    return this.prisma.cart.upsert({
-      where: { profileId_productId: { profileId: userId, productId } },
-      create: { profileId: userId, productId },
-      update: {},
-    });
+    const existing = await this.prisma.cart.findFirst({ where: { user_id: userId, productId } });
+    if (existing) return existing;
+
+    return this.prisma.cart.create({ data: { user_id: userId, productId } });
   }
 
   async removeItem(userId: string, productId: string) {
-    return this.prisma.cart.delete({
-      where: { profileId_productId: { profileId: userId, productId } },
-    });
+    return this.prisma.cart.deleteMany({ where: { user_id: userId, productId } });
   }
 
   async clearCart(userId: string) {
-    return this.prisma.cart.deleteMany({ where: { profileId: userId } });
+    return this.prisma.cart.deleteMany({ where: { user_id: userId } });
   }
 }

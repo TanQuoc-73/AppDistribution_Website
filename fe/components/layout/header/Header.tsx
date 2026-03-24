@@ -4,7 +4,8 @@ import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useCartStore } from '@/stores/useCartStore';
-import { createBrowserClient } from '@supabase/ssr';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
 export default function Header() {
@@ -21,11 +22,10 @@ export default function Header() {
   }
 
   async function handleSignOut() {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    );
+    const supabase = createClient();
     await supabase.auth.signOut();
+    useAuthStore.getState().reset();
+    useCartStore.getState().clearItems();
     router.push('/');
     router.refresh();
   }

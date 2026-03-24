@@ -26,9 +26,9 @@ export default function AddToCartButton({ productId, isFree }: Props) {
     <button
       onClick={handleClick}
       disabled={isPending}
-      className="w-full rounded bg-blue-600 py-2.5 font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
+      className="btn-autumn w-full rounded-xl py-2.5 font-semibold text-white disabled:opacity-60"
     >
-      {isPending ? 'Adding…' : isFree ? 'Get for Free' : 'Add to Cart'}
+      {isPending ? 'Đang thêm…' : isFree ? 'Tải miễn phí' : 'Thêm vào giỏ'}
     </button>
   );
 }

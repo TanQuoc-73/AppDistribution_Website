@@ -1,20 +1,17 @@
 import axios from 'axios';
-import { createBrowserClient } from '@supabase/ssr';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Attach Supabase session token to every request
-api.interceptors.request.use(async (config) => {
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.access_token) {
-    config.headers.Authorization = `Bearer ${session.access_token}`;
+// Attach Supabase session token to every request — read from Zustand store
+// instead of calling supabase.auth.getSession() which contends for the auth lock
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().session?.access_token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });

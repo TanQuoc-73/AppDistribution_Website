@@ -9,7 +9,7 @@ export class OrdersService {
 
   async create(userId: string, dto: CreateOrderDto) {
     const products = await this.prisma.product.findMany({
-      where: { id: { in: dto.productIds }, status: 'active' },
+      where: { id: { in: dto.productIds }, is_active: true },
     });
 
     if (products.length !== dto.productIds.length) {
@@ -17,7 +17,7 @@ export class OrdersService {
     }
 
     const owned = await this.prisma.userLibrary.findMany({
-      where: { profileId: userId, productId: { in: dto.productIds } },
+      where: { user_id: userId, productId: { in: dto.productIds } },
     });
     if (owned.length > 0) {
       throw new BadRequestException('You already own one or more of these products');
@@ -34,7 +34,7 @@ export class OrdersService {
     const subtotal = products.reduce((sum, p) => sum + Number(p.price), 0);
     let discountAmount = 0;
     if (coupon) {
-      discountAmount = coupon.couponType === 'percentage'
+      discountAmount = coupon.discount_type === 'percentage'
         ? subtotal * (Number(coupon.discountValue) / 100)
         : Math.min(Number(coupon.discountValue), subtotal);
     }
@@ -42,7 +42,7 @@ export class OrdersService {
 
     return this.prisma.order.create({
       data: {
-        profileId: userId,
+        user_id: userId,
         couponId: coupon?.id,
         subtotal,
         discountAmount,
@@ -51,7 +51,9 @@ export class OrdersService {
         orderItems: {
           create: products.map((p) => ({
             productId: p.id,
-            priceAtOrder: Number(p.price) * (1 - Number(p.discountPercent) / 100),
+            product_name: p.name,
+            unit_price: p.price as any,
+            final_price: Number(p.price) * (1 - Number((p as any).discountPercent ?? 0) / 100),
           })),
         },
       },
@@ -61,7 +63,7 @@ export class OrdersService {
 
   async findAllByUser(userId: string) {
     return this.prisma.order.findMany({
-      where: { profileId: userId },
+      where: { user_id: userId },
       orderBy: { createdAt: 'desc' },
       include: { orderItems: { include: { product: { select: { id: true, name: true, thumbnailUrl: true } } } } },
     });
@@ -69,7 +71,7 @@ export class OrdersService {
 
   async findOne(id: string, userId: string) {
     const order = await this.prisma.order.findFirst({
-      where: { id, profileId: userId },
+      where: { id, user_id: userId },
       include: { orderItems: true, payment: true },
     });
     if (!order) throw new NotFoundException('Order not found');
@@ -82,7 +84,7 @@ export class OrdersService {
       this.prisma.order.findMany({
         skip, take: limit,
         orderBy: { createdAt: 'desc' },
-        include: { profile: { select: { username: true } }, _count: { select: { orderItems: true } } },
+        include: { profiles: { select: { username: true } }, _count: { select: { orderItems: true } } },
       }),
       this.prisma.order.count(),
     ]);

@@ -14,55 +14,66 @@ export default function ProductCard({ product }: ProductCardProps) {
         ? (parseFloat(product.price) * (1 - product.discountPercent / 100)).toFixed(2)
         : parseFloat(product.price).toFixed(2);
 
+  const rating = product.averageRating ? parseFloat(product.averageRating) : 0;
+  const devName = product.developer?.companyName || (product.developer as any)?.name;
+
   return (
     <Link
       href={`/store/${product.slug}`}
-      className="group flex flex-col overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 transition hover:border-neutral-600"
+      className="autumn-card group flex flex-col overflow-hidden"
     >
       {/* Thumbnail */}
-      <div className="relative aspect-video w-full overflow-hidden bg-neutral-800">
+      <div className="relative aspect-video w-full overflow-hidden bg-amber-950/30">
         {product.thumbnailUrl ? (
           <Image
             src={product.thumbnailUrl}
             alt={product.name}
             fill
-            className="object-cover transition group-hover:scale-105"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-neutral-600">
-            No image
+          <div className="flex h-full items-center justify-center text-amber-800/50">
+            <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
           </div>
         )}
-        {product.discountPercent > 0 && (
-          <span className="absolute right-2 top-2 rounded bg-green-600 px-1.5 py-0.5 text-xs font-bold text-white">
+        {product.discountPercent > 0 && !product.isFree && (
+          <span className="absolute right-2 top-2 rounded-md bg-gradient-to-r from-green-600 to-emerald-600 px-1.5 py-0.5 text-xs font-bold text-white shadow-lg">
             -{product.discountPercent}%
+          </span>
+        )}
+        {product.isFree && (
+          <span className="absolute left-2 top-2 rounded-md bg-amber-600 px-1.5 py-0.5 text-xs font-bold text-white">
+            FREE
           </span>
         )}
       </div>
 
       {/* Info */}
       <div className="flex flex-1 flex-col gap-1 p-3">
-        <h3 className="line-clamp-2 text-sm font-medium text-white">{product.name}</h3>
-        {product.developer && (
-          <p className="text-xs text-neutral-500">{product.developer.companyName}</p>
+        <h3 className="line-clamp-2 text-sm font-medium text-amber-50">{product.name}</h3>
+        {devName && (
+          <p className="text-xs text-amber-400/50">{devName}</p>
         )}
 
         <div className="mt-auto flex items-center justify-between pt-2">
           {/* Rating */}
-          <span className="text-xs text-neutral-400">
-            ★ {parseFloat(product.averageRating).toFixed(1)} ({product.reviewCount})
+          <span className="text-xs text-amber-400/70">
+            <span className="text-amber-500">★</span> {rating.toFixed(1)}
+            {product.reviewCount != null && <span className="text-amber-600/50"> ({product.reviewCount})</span>}
           </span>
 
           {/* Price */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             {product.discountPercent > 0 && !product.isFree && (
-              <span className="text-xs text-neutral-500 line-through">
+              <span className="text-xs text-amber-600/40 line-through">
                 ${parseFloat(product.price).toFixed(2)}
               </span>
             )}
-            <span className="text-sm font-semibold text-white">
-              {product.isFree ? 'Free' : `$${discountedPrice}`}
+            <span className={`text-sm font-semibold ${product.isFree ? 'text-amber-400' : 'text-amber-50'}`}>
+              {product.isFree ? 'Miễn phí' : `$${discountedPrice}`}
             </span>
           </div>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { profilesApi } from '@/lib/api/endpoints';
 
@@ -10,30 +10,13 @@ export function useAuth() {
     useAuthStore();
 
   useEffect(() => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    );
+    const supabase = createClient();
 
-    // Load initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        try {
-          const res = await profilesApi.getMe();
-          setProfile(res.data.data);
-        } catch {
-          // profile not yet created or error
-        }
-      }
-      setLoading(false);
-    });
-
-    // Listen for auth changes
+    // onAuthStateChange fires INITIAL_SESSION on mount — no separate getSession needed
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+
       if (session?.user) {
         try {
           const res = await profilesApi.getMe();
@@ -41,9 +24,11 @@ export function useAuth() {
         } catch {
           setProfile(null);
         }
-      } else {
+      } else if (event === 'SIGNED_OUT') {
         reset();
       }
+
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
