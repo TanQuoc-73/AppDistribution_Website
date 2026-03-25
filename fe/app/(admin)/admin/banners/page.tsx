@@ -88,7 +88,7 @@ export default function AdminBannersPage() {
       setModalOpen(false);
       fetchBanners(page);
     } catch (err: any) {
-      setFormError(err?.message ?? 'Có lỗi xảy ra, vui lòng thử lại.');
+      setFormError(err?.message ?? 'An error occurred. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -102,7 +102,7 @@ export default function AdminBannersPage() {
   }
 
   async function handleDelete(id: string, title: string) {
-    if (!confirm(`Xoá banner "${title}"? Hành động này không thể hoàn tác.`)) return;
+    if (!confirm(`Delete banner "${title}"? This action cannot be undone.`)) return;
     try {
       await adminApi.deleteBanner(id);
       fetchBanners(page);
@@ -121,7 +121,7 @@ export default function AdminBannersPage() {
             onClick={openCreate}
             className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-500"
           >
-            <Plus className="h-4 w-4" /> Thêm mới
+            <Plus className="h-4 w-4" /> Add New
           </button>
         </div>
       </div>
@@ -132,9 +132,9 @@ export default function AdminBannersPage() {
             <tr>
               <th className="px-4 py-3">Banner</th>
               <th className="px-4 py-3">Link</th>
-              <th className="px-4 py-3">Thứ tự</th>
-              <th className="px-4 py-3">Trạng thái</th>
-              <th className="px-4 py-3 text-right">Thao tác</th>
+              <th className="px-4 py-3">Order</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-800/60">
@@ -149,7 +149,7 @@ export default function AdminBannersPage() {
             ) : result?.data.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-stone-500">
-                  Chưa có banner nào
+                  No banners yet
                 </td>
               </tr>
             ) : (
@@ -187,14 +187,14 @@ export default function AdminBannersPage() {
                       <button
                         onClick={() => openEdit(item)}
                         className="rounded p-1.5 text-stone-400 transition hover:bg-amber-900/30 hover:text-amber-300"
-                        title="Sửa"
+                        title="Edit"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(item.id, item.title)}
                         className="rounded p-1.5 text-stone-400 transition hover:bg-red-900/30 hover:text-red-400"
-                        title="Xoá"
+                        title="Delete"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -214,7 +214,7 @@ export default function AdminBannersPage() {
             onClick={() => setPage((p) => p - 1)}
             className="rounded-lg border border-stone-700 px-3 py-1.5 text-sm text-stone-300 transition hover:bg-stone-800 disabled:opacity-40"
           >
-            Trước
+            Previous
           </button>
           <span className="text-sm text-stone-500">{page} / {result.meta.totalPages}</span>
           <button
@@ -222,7 +222,7 @@ export default function AdminBannersPage() {
             onClick={() => setPage((p) => p + 1)}
             className="rounded-lg border border-stone-700 px-3 py-1.5 text-sm text-stone-300 transition hover:bg-stone-800 disabled:opacity-40"
           >
-            Sau
+            Next
           </button>
         </div>
       )}
@@ -231,12 +231,12 @@ export default function AdminBannersPage() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingId ? 'Sửa banner' : 'Thêm banner mới'}
+        title={editingId ? 'Edit Banner' : 'Add New Banner'}
         wide
       >
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm text-stone-400">Tiêu đề *</label>
+            <label className="mb-1 block text-sm text-stone-400">Title *</label>
             <input
               required
               value={form.title}
@@ -246,7 +246,7 @@ export default function AdminBannersPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-stone-400">URL ảnh *</label>
+            <label className="mb-1 block text-sm text-stone-400">Image URL *</label>
             <input
               required
               value={form.imageUrl}
@@ -260,7 +260,7 @@ export default function AdminBannersPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-stone-400">URL liên kết</label>
+            <label className="mb-1 block text-sm text-stone-400">Link URL</label>
             <input
               value={form.linkUrl}
               onChange={(e) => set('linkUrl', e.target.value)}
@@ -270,7 +270,7 @@ export default function AdminBannersPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-stone-400">Thứ tự hiển thị</label>
+            <label className="mb-1 block text-sm text-stone-400">Display Order</label>
             <input
               type="number"
               value={form.sortOrder}
@@ -288,7 +288,7 @@ export default function AdminBannersPage() {
               onChange={(e) => set('isActive', e.target.checked)}
               className="h-4 w-4 rounded border-stone-600 bg-stone-800 accent-amber-500"
             />
-            <label htmlFor="isActiveBanner" className="text-sm text-stone-300">Kích hoạt</label>
+            <label htmlFor="isActiveBanner" className="text-sm text-stone-300">Active</label>
           </div>
 
           {formError && (
@@ -303,14 +303,14 @@ export default function AdminBannersPage() {
               onClick={() => setModalOpen(false)}
               className="rounded-lg border border-stone-700 px-4 py-2 text-sm text-stone-300 transition hover:bg-stone-800"
             >
-              Huỷ
+              Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
               className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-500 disabled:opacity-50"
             >
-              {saving ? 'Đang lưu...' : 'Lưu'}
+              {saving ? 'Saving...' : 'Save'}
             </button>
           </div>
         </form>

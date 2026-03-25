@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalVariableEntities>
+   <description>Staging environment execution profile</description>
+   <name>staging</name>
+   <tag></tag>
+   <defaultProfile>false</defaultProfile>
+   <GlobalVariableEntity>
+      <description>Staging base URL</description>
+      <initValue>'https://staging.appdistribution.example.com'</initValue>
+      <name>baseUrl</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Staging API base URL</description>
+      <initValue>'https://staging-api.appdistribution.example.com/api'</initValue>
+      <name>apiBaseUrl</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Valid test user email</description>
+      <initValue>'testuser@example.com'</initValue>
+      <name>validEmail</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Valid test user password</description>
+      <initValue>'TestPassword123!'</initValue>
+      <name>validPassword</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Admin email</description>
+      <initValue>'admin@example.com'</initValue>
+      <name>adminEmail</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Admin password</description>
+      <initValue>'AdminPassword123!'</initValue>
+      <name>adminPassword</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Developer email</description>
+      <initValue>'developer@example.com'</initValue>
+      <name>developerEmail</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Developer password</description>
+      <initValue>'DevPassword123!'</initValue>
+      <name>developerPassword</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Valid coupon code</description>
+      <initValue>'STAGING_COUPON'</initValue>
+      <name>validCouponCode</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Global timeout</description>
+      <initValue>15</initValue>
+      <name>globalTimeout</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Browser type</description>
+      <initValue>'Chrome'</initValue>
+      <name>browser</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Screenshot output directory</description>
+      <initValue>'Reports/Screenshots'</initValue>
+      <name>screenshotDir</name>
+   </GlobalVariableEntity>
+</GlobalVariableEntities>

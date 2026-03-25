@@ -72,7 +72,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               </span>
             )}
             <span className={`text-sm font-semibold ${product.isFree ? 'text-amber-400' : 'text-amber-50'}`}>
-              {product.isFree ? 'Miễn phí' : `$${discountedPrice}`}
+              {product.isFree ? 'Free' : `$${discountedPrice}`}
             </span>
           </div>
         </div>

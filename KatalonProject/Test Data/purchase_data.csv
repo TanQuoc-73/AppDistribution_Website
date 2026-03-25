@@ -1,0 +1,9 @@
+payment_method,coupon_code,expected_result,description
+credit_card,,success,Purchase with credit card no coupon
+bank_transfer,,success,Purchase with bank transfer
+paypal,,success,Purchase with PayPal
+wallet,,success,Purchase with e-wallet
+credit_card,DISCOUNT10,success,Credit card with valid 10% coupon
+credit_card,SAVE20,success,Credit card with valid 20% coupon
+credit_card,INVALID_CODE,error,Credit card with invalid coupon
+bank_transfer,EXPIRED_COUPON,error,Bank transfer with expired coupon

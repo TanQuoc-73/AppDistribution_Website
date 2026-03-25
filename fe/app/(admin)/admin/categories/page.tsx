@@ -86,7 +86,7 @@ export default function AdminCategoriesPage() {
       setModalOpen(false);
       fetchCategories();
     } catch (err: any) {
-      const msg = err?.response?.data?.message ?? err?.message ?? 'Có lỗi xảy ra';
+      const msg = err?.response?.data?.message ?? err?.message ?? 'An error occurred';
       setFormError(Array.isArray(msg) ? msg.join(', ') : msg);
     } finally {
       setSaving(false);
@@ -94,12 +94,12 @@ export default function AdminCategoriesPage() {
   }
 
   async function handleDelete(cat: Category) {
-    if (!confirm(`Xoá category "${cat.name}"? Hành động này không thể hoàn tác.`)) return;
+    if (!confirm(`Delete category "${cat.name}"? This action cannot be undone.`)) return;
     try {
       await categoriesApi.remove(cat.id);
       fetchCategories();
     } catch (err: any) {
-      const msg = err?.response?.data?.message ?? 'Không thể xoá';
+      const msg = err?.response?.data?.message ?? 'Cannot delete';
       alert(msg);
     }
   }
@@ -117,7 +117,7 @@ export default function AdminCategoriesPage() {
           onClick={openCreate}
           className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-500"
         >
-          <Plus className="h-4 w-4" /> Thêm category
+          <Plus className="h-4 w-4" /> Add Category
         </button>
       </div>
 
@@ -129,19 +129,19 @@ export default function AdminCategoriesPage() {
         </div>
       ) : categories.length === 0 ? (
         <div className="rounded-xl border border-stone-800 bg-stone-900/60 py-16 text-center text-stone-500">
-          Chưa có category nào.{' '}
-          <button onClick={openCreate} className="text-amber-400 hover:underline">Tạo ngay</button>
+          No categories yet.{' '}
+          <button onClick={openCreate} className="text-amber-400 hover:underline">Create now</button>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-stone-800">
           <table className="w-full text-sm">
             <thead className="border-b border-stone-800 bg-stone-900/80 text-left text-xs font-semibold uppercase tracking-wider text-stone-400">
               <tr>
-                <th className="px-4 py-3">Tên</th>
+                <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Slug</th>
                 <th className="px-4 py-3">Parent</th>
                 <th className="px-4 py-3">Order</th>
-                <th className="px-4 py-3 text-right">Thao tác</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-800/60">
@@ -174,7 +174,7 @@ export default function AdminCategoriesPage() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editTarget ? 'Sửa category' : 'Thêm category mới'}
+        title={editTarget ? 'Edit Category' : 'Add New Category'}
       >
         <form
           onSubmit={(e) => { e.preventDefault(); handleSave(); }}
@@ -182,7 +182,7 @@ export default function AdminCategoriesPage() {
         >
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 block text-sm text-stone-400">Tên *</label>
+              <label className="mb-1 block text-sm text-stone-400">Name *</label>
               <input
                 value={form.name}
                 onChange={(e) => {
@@ -210,7 +210,7 @@ export default function AdminCategoriesPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-stone-400">Mô tả</label>
+            <label className="mb-1 block text-sm text-stone-400">Description</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
@@ -247,7 +247,7 @@ export default function AdminCategoriesPage() {
               onChange={(e) => setForm((f) => ({ ...f, parentId: e.target.value }))}
               className="w-full rounded-lg border border-stone-700 bg-stone-800/60 px-3 py-2 text-sm text-stone-100 outline-none focus:border-amber-700"
             >
-              <option value="">— Không có (root) —</option>
+              <option value="">— None (root) —</option>
               {rootCategories
                 .filter((c) => c.id !== editTarget?.id)
                 .map((c) => (
@@ -268,14 +268,14 @@ export default function AdminCategoriesPage() {
               onClick={() => setModalOpen(false)}
               className="rounded-lg border border-stone-700 px-4 py-2 text-sm text-stone-300 transition hover:bg-stone-800"
             >
-              Hủy
+              Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
               className="rounded-lg bg-amber-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-amber-500 disabled:opacity-60"
             >
-              {saving ? 'Đang lưu…' : editTarget ? 'Lưu thay đổi' : 'Tạo category'}
+              {saving ? 'Saving…' : editTarget ? 'Save Changes' : 'Create Category'}
             </button>
           </div>
         </form>
@@ -313,14 +313,14 @@ function CategoryRow({
           <button
             onClick={() => onEdit(cat)}
             className="rounded p-1.5 text-stone-400 transition hover:bg-amber-900/30 hover:text-amber-300"
-            title="Sửa"
+            title="Edit"
           >
             <Pencil className="h-4 w-4" />
           </button>
           <button
             onClick={() => onDelete(cat)}
             className="rounded p-1.5 text-stone-400 transition hover:bg-red-900/30 hover:text-red-400"
-            title="Xoá"
+            title="Delete"
           >
             <Trash2 className="h-4 w-4" />
           </button>

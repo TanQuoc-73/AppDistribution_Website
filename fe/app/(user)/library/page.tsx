@@ -20,7 +20,7 @@ function DownloadButton({ product }: { product: LibraryEntry }) {
         window.open(result.downloadUrl, '_blank', 'noopener,noreferrer');
       }
     } catch (err: any) {
-      alert(err?.message ?? 'Không thể tải về. Vui lòng thử lại.');
+      alert(err?.message ?? 'Unable to download. Please try again.');
     }
   }
 
@@ -28,13 +28,13 @@ function DownloadButton({ product }: { product: LibraryEntry }) {
     <button
       onClick={handleDownload}
       disabled={!hasUrl}
-      title={hasUrl ? `Tải về phiên bản ${product.latestVersion?.version}` : 'Chưa có file tải về'}
+      title={hasUrl ? `Download version ${product.latestVersion?.version}` : 'No download available'}
       className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
     >
       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
       </svg>
-      {hasUrl ? `Tải về${product.latestVersion?.version ? ` v${product.latestVersion.version}` : ''}` : 'Chưa có file'}
+      {hasUrl ? `Download${product.latestVersion?.version ? ` v${product.latestVersion.version}` : ''}` : 'No file'}
     </button>
   );
 }
@@ -50,17 +50,17 @@ export default function LibraryPage() {
     enabled: !!user,
   });
 
-  if (isLoading) return <div className="py-20 text-center text-neutral-400">Đang tải thư viện…</div>;
+  if (isLoading) return <div className="py-20 text-center text-neutral-400">Loading library…</div>;
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">Thư viện của tôi</h1>
+      <h1 className="mb-6 text-2xl font-bold">My Library</h1>
 
       {!data?.length ? (
         <div className="py-20 text-center">
-          <p className="mb-4 text-neutral-400">Thư viện trống. Hãy mua sản phẩm trước.</p>
+          <p className="mb-4 text-neutral-400">Your library is empty. Purchase a product first.</p>
           <Link href="/store" className="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-500">
-            Khám phá cửa hàng
+            Browse Store
           </Link>
         </div>
       ) : (
@@ -84,11 +84,11 @@ export default function LibraryPage() {
                   {entry.name}
                 </Link>
                 <p className="mb-2 text-xs text-neutral-500">
-                  Đã sở hữu từ {new Date(entry.acquiredAt).toLocaleDateString('vi-VN')}
+                  Owned since {new Date(entry.acquiredAt).toLocaleDateString('en-US')}
                 </p>
                 {entry.latestVersion && (
                   <p className="mb-3 text-xs text-neutral-400">
-                    Phiên bản mới nhất: <span className="text-white">v{entry.latestVersion.version}</span>
+                    Latest version: <span className="text-white">v{entry.latestVersion.version}</span>
                     {entry.latestVersion.fileSize && (
                       <span className="ml-2 text-neutral-500">
                         ({(entry.latestVersion.fileSize / 1024 / 1024).toFixed(1)} MB)
@@ -107,7 +107,7 @@ export default function LibraryPage() {
                     href={`/store/${entry.slug}`}
                     className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300 hover:border-neutral-500"
                   >
-                    Chi tiết
+                    Details
                   </Link>
                 </div>
               </div>

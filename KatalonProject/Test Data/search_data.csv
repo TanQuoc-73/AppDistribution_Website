@@ -1,0 +1,8 @@
+search_term,expected_has_results,description
+Aurora,true,Search for existing product name
+game,true,Search for common keyword
+free,true,Search for free apps
+xyznonexistent12345,false,Search with no matching results
+a,true,Single character search
+Code,true,Search for developer studio keyword
+,true,Empty search returns all products

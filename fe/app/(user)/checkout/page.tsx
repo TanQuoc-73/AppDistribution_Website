@@ -11,10 +11,10 @@ import type { MockPaymentMethod } from '@/types';
 import { useQueryClient } from '@tanstack/react-query';
 
 const PAYMENT_METHODS: { id: MockPaymentMethod; label: string; icon: string; desc: string }[] = [
-  { id: 'credit_card', label: 'Thẻ tín dụng / Thẻ ghi nợ', icon: '💳', desc: 'Visa, Mastercard, JCB (Demo)' },
-  { id: 'bank_transfer', label: 'Chuyển khoản ngân hàng', icon: '🏦', desc: 'Vietcombank, BIDV, Techcombank (Demo)' },
-  { id: 'paypal_mock', label: 'PayPal', icon: '🅿️', desc: 'Thanh toán qua PayPal (Demo)' },
-  { id: 'wallet', label: 'Ví điện tử', icon: '👜', desc: 'MoMo, ZaloPay (Demo)' },
+  { id: 'credit_card', label: 'Credit / Debit Card', icon: '💳', desc: 'Visa, Mastercard, JCB (Demo)' },
+  { id: 'bank_transfer', label: 'Bank Transfer', icon: '🏦', desc: 'Vietcombank, BIDV, Techcombank (Demo)' },
+  { id: 'paypal_mock', label: 'PayPal', icon: '🅿️', desc: 'Pay via PayPal (Demo)' },
+  { id: 'wallet', label: 'E-Wallet', icon: '👜', desc: 'MoMo, ZaloPay (Demo)' },
 ];
 
 type CheckoutStep = 'review' | 'payment' | 'success';
@@ -32,13 +32,13 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
   const [successData, setSuccessData] = useState<{ transactionId: string; orderId: string } | null>(null);
 
-  if (isLoading) return <div className="py-20 text-center text-neutral-400">Đang tải giỏ hàng…</div>;
+  if (isLoading) return <div className="py-20 text-center text-neutral-400">Loading cart…</div>;
 
   if (!items?.length && step !== 'success') {
     return (
       <div className="py-20 text-center">
-        <p className="mb-4 text-neutral-400">Giỏ hàng trống.</p>
-        <Link href="/store" className="rounded bg-blue-600 px-6 py-2 text-white">Quay lại cửa hàng</Link>
+        <p className="mb-4 text-neutral-400">Your cart is empty.</p>
+        <Link href="/store" className="rounded bg-blue-600 px-6 py-2 text-white">Back to Store</Link>
       </div>
     );
   }
@@ -75,7 +75,7 @@ export default function CheckoutPage() {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     } catch (err: any) {
-      setError(err?.message ?? 'Đã xảy ra lỗi. Vui lòng thử lại.');
+      setError(err?.message ?? 'An error occurred. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -86,16 +86,16 @@ export default function CheckoutPage() {
     return (
       <div className="mx-auto max-w-lg py-20 text-center">
         <div className="mb-6 text-6xl">✅</div>
-        <h1 className="mb-2 text-2xl font-bold text-green-400">Thanh toán thành công!</h1>
-        <p className="mb-1 text-neutral-400">Mã giao dịch: <span className="font-mono text-white">{successData.transactionId}</span></p>
-        <p className="mb-6 text-neutral-400">Mã đơn hàng: <span className="font-mono text-white">{successData.orderId.slice(0, 8).toUpperCase()}</span></p>
-        <p className="mb-8 text-neutral-300">Sản phẩm đã được thêm vào <strong>Thư viện</strong> của bạn.</p>
+        <h1 className="mb-2 text-2xl font-bold text-green-400">Payment Successful!</h1>
+        <p className="mb-1 text-neutral-400">Transaction ID: <span className="font-mono text-white">{successData.transactionId}</span></p>
+        <p className="mb-6 text-neutral-400">Order ID: <span className="font-mono text-white">{successData.orderId.slice(0, 8).toUpperCase()}</span></p>
+        <p className="mb-8 text-neutral-300">Products have been added to your <strong>Library</strong>.</p>
         <div className="flex justify-center gap-4">
           <Link href="/library" className="rounded bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-500">
-            Vào thư viện
+            Go to Library
           </Link>
           <Link href="/store" className="rounded border border-neutral-700 px-6 py-2 text-neutral-300 hover:border-neutral-500">
-            Tiếp tục mua sắm
+            Continue Shopping
           </Link>
         </div>
       </div>
@@ -104,13 +104,13 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="mb-8 text-2xl font-bold">Thanh toán</h1>
+      <h1 className="mb-8 text-2xl font-bold">Checkout</h1>
 
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Left: Payment method */}
         <div className="lg:col-span-2 space-y-6">
           <div className="rounded-lg border border-neutral-800 bg-neutral-900 p-6">
-            <h2 className="mb-4 text-lg font-semibold">Phương thức thanh toán</h2>
+            <h2 className="mb-4 text-lg font-semibold">Payment Method</h2>
             <div className="space-y-3">
               {PAYMENT_METHODS.map((m) => (
                 <label
@@ -141,11 +141,11 @@ export default function CheckoutPage() {
 
           {/* Coupon code */}
           <div className="rounded-lg border border-neutral-800 bg-neutral-900 p-6">
-            <h2 className="mb-4 text-lg font-semibold">Mã giảm giá</h2>
+            <h2 className="mb-4 text-lg font-semibold">Coupon Code</h2>
             <div className="flex gap-3">
               <input
                 type="text"
-                placeholder="Nhập mã coupon (tuỳ chọn)"
+                placeholder="Enter coupon code (optional)"
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
                 className="flex-1 rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm text-white placeholder-neutral-500 focus:border-blue-500 focus:outline-none"
@@ -155,14 +155,14 @@ export default function CheckoutPage() {
 
           {/* Demo notice */}
           <div className="rounded-lg border border-yellow-800 bg-yellow-950/30 p-4 text-sm text-yellow-300">
-            <strong>⚠️ Demo:</strong> Đây là môi trường thử nghiệm. Không có giao dịch thực nào xảy ra.
+            <strong>⚠️ Demo:</strong> This is a test environment. No real transactions occur.
           </div>
         </div>
 
         {/* Right: Order summary */}
         <div className="space-y-4">
           <div className="rounded-lg border border-neutral-800 bg-neutral-900 p-6">
-            <h2 className="mb-4 text-lg font-semibold">Tóm tắt đơn hàng</h2>
+            <h2 className="mb-4 text-lg font-semibold">Order Summary</h2>
             <div className="space-y-3">
               {(items ?? []).map((item) => {
                 const price = parseFloat(item.product.price);
@@ -179,7 +179,7 @@ export default function CheckoutPage() {
                       <p className="truncate text-sm font-medium">{item.product.name}</p>
                     </div>
                     <p className="text-sm font-medium text-white">
-                      {item.product.isFree ? 'Miễn phí' : `$${finalPrice.toFixed(2)}`}
+                      {item.product.isFree ? 'Free' : `$${finalPrice.toFixed(2)}`}
                     </p>
                   </div>
                 );
@@ -188,7 +188,7 @@ export default function CheckoutPage() {
 
             <div className="mt-4 border-t border-neutral-700 pt-4">
               <div className="flex justify-between text-lg font-bold">
-                <span>Tổng cộng</span>
+                <span>Total</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
             </div>
@@ -205,11 +205,11 @@ export default function CheckoutPage() {
             disabled={isProcessing || isCreatingOrder}
             className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white hover:bg-blue-500 disabled:opacity-60"
           >
-            {isProcessing || isCreatingOrder ? 'Đang xử lý…' : `Thanh toán $${subtotal.toFixed(2)}`}
+            {isProcessing || isCreatingOrder ? 'Processing…' : `Checkout $${subtotal.toFixed(2)}`}
           </button>
 
           <Link href="/cart" className="block text-center text-sm text-neutral-400 hover:text-white">
-            ← Quay lại giỏ hàng
+            ← Back to Cart
           </Link>
         </div>
       </div>

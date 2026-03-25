@@ -7,7 +7,7 @@ import { developerApi, categoriesApi, tagsApi } from '@/lib/api/endpoints';
 import Link from 'next/link';
 
 const AGE_RATINGS = [
-  { value: 'everyone', label: 'Mọi lứa tuổi' },
+  { value: 'everyone', label: 'Everyone' },
   { value: 'teen', label: 'Teen (13+)' },
   { value: 'mature', label: 'Mature (17+)' },
   { value: 'adults_only', label: 'Adults Only (18+)' },
@@ -67,7 +67,7 @@ export default function NewProductPage() {
       if (id) router.push(`/developer/products/${id}`);
       else router.push('/developer/products');
     },
-    onError: (err: any) => setError(err?.message ?? 'Tạo sản phẩm thất bại'),
+    onError: (err: any) => setError(err?.message ?? 'Failed to create product'),
   });
 
   function set(field: string, value: any) {
@@ -85,47 +85,47 @@ export default function NewProductPage() {
     <div className="mx-auto max-w-2xl">
       <div className="mb-6 flex items-center gap-4">
         <Link href="/developer/products" className="text-neutral-400 hover:text-white">←</Link>
-        <h1 className="text-2xl font-bold">Tạo sản phẩm mới</h1>
+        <h1 className="text-2xl font-bold">Create New Product</h1>
       </div>
 
       <div className="space-y-5 rounded-xl border border-neutral-800 bg-neutral-900 p-6">
         {/* Name */}
         <div>
-          <label className="mb-1 block text-sm font-medium">Tên sản phẩm *</label>
+          <label className="mb-1 block text-sm font-medium">Product Name *</label>
           <input
             value={form.name}
             onChange={(e) => set('name', e.target.value)}
             className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
-            placeholder="Tên sản phẩm"
+            placeholder="Product name"
           />
         </div>
 
         {/* Short description */}
         <div>
-          <label className="mb-1 block text-sm font-medium">Mô tả ngắn</label>
+          <label className="mb-1 block text-sm font-medium">Short Description</label>
           <input
             value={form.shortDescription}
             onChange={(e) => set('shortDescription', e.target.value)}
             className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
-            placeholder="Mô tả ngắn gọn"
+            placeholder="Brief description"
           />
         </div>
 
         {/* Description */}
         <div>
-          <label className="mb-1 block text-sm font-medium">Mô tả chi tiết</label>
+          <label className="mb-1 block text-sm font-medium">Detailed Description</label>
           <textarea
             value={form.description}
             onChange={(e) => set('description', e.target.value)}
             rows={5}
             className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
-            placeholder="Mô tả đầy đủ về sản phẩm…"
+            placeholder="Full product description…"
           />
         </div>
 
         {/* Thumbnail URL */}
         <div>
-          <label className="mb-1 block text-sm font-medium">URL ảnh thumbnail</label>
+          <label className="mb-1 block text-sm font-medium">Thumbnail URL</label>
           <input
             value={form.thumbnailUrl}
             onChange={(e) => set('thumbnailUrl', e.target.value)}
@@ -137,7 +137,7 @@ export default function NewProductPage() {
         {/* Price + discount + free toggle */}
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">Giá ($)</label>
+            <label className="mb-1 block text-sm font-medium">Price ($)</label>
             <input
               type="number"
               min="0"
@@ -149,7 +149,7 @@ export default function NewProductPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Giảm giá (%)</label>
+            <label className="mb-1 block text-sm font-medium">Discount (%)</label>
             <input
               type="number"
               min="0"
@@ -167,7 +167,7 @@ export default function NewProductPage() {
                 onChange={(e) => set('isFree', e.target.checked)}
                 className="accent-blue-500"
               />
-              Miễn phí
+              Free
             </label>
           </div>
         </div>
@@ -175,7 +175,7 @@ export default function NewProductPage() {
         {/* Age rating + release date */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">Độ tuổi</label>
+            <label className="mb-1 block text-sm font-medium">Age Rating</label>
             <select
               value={form.ageRating}
               onChange={(e) => set('ageRating', e.target.value)}
@@ -185,7 +185,7 @@ export default function NewProductPage() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Ngày phát hành</label>
+            <label className="mb-1 block text-sm font-medium">Release Date</label>
             <input
               type="date"
               value={form.releaseDate}
@@ -197,21 +197,21 @@ export default function NewProductPage() {
 
         {/* Download / Version info */}
         <div className="border-t border-neutral-800 pt-5">
-          <h3 className="mb-3 text-sm font-semibold text-neutral-300">Link tải & Phiên bản</h3>
+          <h3 className="mb-3 text-sm font-semibold text-neutral-300">Download & Version</h3>
           <div className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium">URL tải về</label>
+              <label className="mb-1 block text-sm font-medium">Download URL</label>
               <input
                 value={form.downloadUrl}
                 onChange={(e) => set('downloadUrl', e.target.value)}
                 className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
                 placeholder="https://drive.google.com/file/d/.../view"
               />
-              <p className="mt-1 text-xs text-neutral-500">Link Google Drive sẽ tự động chuyển sang link tải trực tiếp</p>
+              <p className="mt-1 text-xs text-neutral-500">Google Drive links will be auto-converted to direct download</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-sm font-medium">Số phiên bản</label>
+                <label className="mb-1 block text-sm font-medium">Version Number</label>
                 <input
                   value={form.versionString}
                   onChange={(e) => set('versionString', e.target.value)}
@@ -220,7 +220,7 @@ export default function NewProductPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium">Kích thước file (bytes)</label>
+                <label className="mb-1 block text-sm font-medium">File Size (bytes)</label>
                 <input
                   type="number"
                   min="0"
@@ -237,7 +237,7 @@ export default function NewProductPage() {
         {/* Categories */}
         {categories?.length ? (
           <div>
-            <label className="mb-2 block text-sm font-medium">Danh mục</label>
+            <label className="mb-2 block text-sm font-medium">Categories</label>
             <div className="flex flex-wrap gap-2">
               {categories.map((cat: any) => (
                 <button
@@ -260,7 +260,7 @@ export default function NewProductPage() {
         {/* Tags */}
         {tags?.length ? (
           <div>
-            <label className="mb-2 block text-sm font-medium">Thẻ tag</label>
+            <label className="mb-2 block text-sm font-medium">Tags</label>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag: any) => (
                 <button
@@ -286,14 +286,14 @@ export default function NewProductPage() {
 
         <div className="flex justify-end gap-3 pt-2">
           <Link href="/developer/products" className="rounded-lg border border-neutral-700 px-5 py-2 text-neutral-300 hover:border-neutral-500">
-            Huỷ
+            Cancel
           </Link>
           <button
             onClick={() => mutate()}
             disabled={isPending || !form.name.trim()}
             className="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-500 disabled:opacity-60"
           >
-            {isPending ? 'Đang tạo…' : 'Tạo sản phẩm'}
+            {isPending ? 'Creating…' : 'Create Product'}
           </button>
         </div>
       </div>

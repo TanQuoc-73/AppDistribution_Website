@@ -14,25 +14,25 @@ export default function DeveloperProductsPage() {
     },
   });
 
-  if (isLoading) return <div className="py-10 text-center text-neutral-400">Đang tải…</div>;
+  if (isLoading) return <div className="py-10 text-center text-neutral-400">Loading…</div>;
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Sản phẩm của tôi</h1>
+        <h1 className="text-2xl font-bold">My Products</h1>
         <Link
           href="/developer/products/new"
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
         >
-          + Thêm sản phẩm
+          + Add Product
         </Link>
       </div>
 
       {!data?.length ? (
         <div className="py-20 text-center">
-          <p className="mb-4 text-neutral-400">Bạn chưa có sản phẩm nào.</p>
+          <p className="mb-4 text-neutral-400">You don't have any products yet.</p>
           <Link href="/developer/products/new" className="rounded bg-blue-600 px-6 py-2 text-white">
-            Tạo sản phẩm đầu tiên
+            Create your first product
           </Link>
         </div>
       ) : (
@@ -40,11 +40,11 @@ export default function DeveloperProductsPage() {
           <table className="w-full text-sm">
             <thead className="border-b border-neutral-800 bg-neutral-900 text-left text-xs uppercase text-neutral-500">
               <tr>
-                <th className="px-4 py-3">Sản phẩm</th>
-                <th className="px-4 py-3">Giá</th>
-                <th className="px-4 py-3">Phiên bản</th>
-                <th className="px-4 py-3">Tải về</th>
-                <th className="px-4 py-3">Trạng thái</th>
+                <th className="px-4 py-3">Product</th>
+                <th className="px-4 py-3">Price</th>
+                <th className="px-4 py-3">Version</th>
+                <th className="px-4 py-3">Downloads</th>
+                <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -68,7 +68,7 @@ export default function DeveloperProductsPage() {
                   </td>
                   <td className="px-4 py-3 text-white">
                     {product.isFree ? (
-                      <span className="text-green-400">Miễn phí</span>
+                      <span className="text-green-400">Free</span>
                     ) : (
                       `$${parseFloat(product.price).toFixed(2)}`
                     )}
@@ -83,7 +83,7 @@ export default function DeveloperProductsPage() {
                     <span className={`rounded-full px-2 py-0.5 text-xs ${
                       product.is_active ? 'bg-green-900 text-green-300' : 'bg-neutral-800 text-neutral-400'
                     }`}>
-                      {product.is_active ? 'Hoạt động' : 'Tạm ẩn'}
+                      {product.is_active ? 'Active' : 'Hidden'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -91,7 +91,7 @@ export default function DeveloperProductsPage() {
                       href={`/developer/products/${product.id}`}
                       className="rounded border border-neutral-700 px-3 py-1 text-xs text-neutral-300 hover:border-neutral-500"
                     >
-                      Quản lý
+                      Manage
                     </Link>
                   </td>
                 </tr>

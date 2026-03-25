@@ -7,7 +7,7 @@ import type { NewsArticle } from '@/types';
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('vi-VN', {
+  return new Date(dateStr).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -28,7 +28,7 @@ export async function generateMetadata({
       description: article.content.replace(/<[^>]+>/g, '').slice(0, 160),
     };
   } catch {
-    return { title: 'Tin tức | AppDistribution' };
+    return { title: 'News | AppDistribution' };
   }
 }
 
@@ -59,7 +59,7 @@ export default async function NewsDetailPage({
             className="flex w-fit items-center gap-1.5 text-sm text-stone-400 transition hover:text-amber-400"
           >
             <ChevronLeft className="h-4 w-4" />
-            Quay lại tin tức
+            Back to News
           </Link>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default async function NewsDetailPage({
           <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-stone-500">
             <span className="font-semibold uppercase tracking-widest text-amber-600">
               <Newspaper className="inline -mt-0.5 mr-1 h-3.5 w-3.5" />
-              Tin tức
+              News
             </span>
             <span className="text-stone-700">·</span>
             <span className="flex items-center gap-1">

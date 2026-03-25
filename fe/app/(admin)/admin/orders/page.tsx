@@ -84,12 +84,12 @@ export default function AdminOrdersPage() {
           <thead className="border-b border-stone-800 bg-stone-900/80 text-left text-stone-400">
             <tr>
               <th className="px-4 py-3">Order ID</th>
-              <th className="px-4 py-3">Người mua</th>
-              <th className="px-4 py-3">Sản phẩm</th>
-              <th className="px-4 py-3">Tổng</th>
-              <th className="px-4 py-3">Trạng thái</th>
-              <th className="px-4 py-3">Ngày tạo</th>
-              <th className="px-4 py-3 text-right">Thao tác</th>
+              <th className="px-4 py-3">Buyer</th>
+              <th className="px-4 py-3">Products</th>
+              <th className="px-4 py-3">Total</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Created</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-800/60">
@@ -104,7 +104,7 @@ export default function AdminOrdersPage() {
             ) : result?.data.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-stone-500">
-                  Không có đơn hàng
+                  No orders found
                 </td>
               </tr>
             ) : (
@@ -140,7 +140,7 @@ export default function AdminOrdersPage() {
                     <button
                       onClick={() => openDetail(o.id)}
                       className="rounded p-1.5 text-stone-400 transition hover:bg-amber-900/30 hover:text-amber-300"
-                      title="Chi tiết"
+                      title="Details"
                     >
                       <Eye className="h-4 w-4" />
                     </button>
@@ -159,7 +159,7 @@ export default function AdminOrdersPage() {
             onClick={() => setPage((p) => p - 1)}
             className="rounded-lg border border-stone-700 px-3 py-1.5 text-sm text-stone-300 transition hover:bg-stone-800 disabled:opacity-40"
           >
-            Trước
+            Previous
           </button>
           <span className="text-sm text-stone-500">{page} / {result.meta.totalPages}</span>
           <button
@@ -167,7 +167,7 @@ export default function AdminOrdersPage() {
             onClick={() => setPage((p) => p + 1)}
             className="rounded-lg border border-stone-700 px-3 py-1.5 text-sm text-stone-300 transition hover:bg-stone-800 disabled:opacity-40"
           >
-            Sau
+            Next
           </button>
         </div>
       )}
@@ -176,7 +176,7 @@ export default function AdminOrdersPage() {
       <Modal
         open={detailLoading || !!detail}
         onClose={() => { setDetail(null); setDetailLoading(false); }}
-        title="Chi tiết đơn hàng"
+        title="Order Details"
         wide
       >
         {detailLoading ? (
@@ -192,26 +192,26 @@ export default function AdminOrdersPage() {
                 <span className="ml-2 font-mono text-stone-300">{detail.id}</span>
               </div>
               <div>
-                <span className="text-stone-500">Trạng thái:</span>
+                <span className="text-stone-500">Status:</span>
                 <span className={`ml-2 rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[detail.status] ?? ''}`}>
                   {detail.status}
                 </span>
               </div>
               <div>
-                <span className="text-stone-500">Người mua:</span>
+                <span className="text-stone-500">Buyer:</span>
                 <span className="ml-2 text-stone-200">
                   {detail.profiles?.username ?? '—'}
                 </span>
               </div>
               <div>
-                <span className="text-stone-500">Ngày tạo:</span>
+                <span className="text-stone-500">Created:</span>
                 <span className="ml-2 text-stone-300">{new Date(detail.createdAt).toLocaleString()}</span>
               </div>
             </div>
 
             {/* Items list */}
             <div>
-              <h3 className="mb-3 text-sm font-semibold text-stone-300">Sản phẩm ({detail.orderItems.length})</h3>
+              <h3 className="mb-3 text-sm font-semibold text-stone-300">Products ({detail.orderItems.length})</h3>
               <div className="divide-y divide-stone-800 rounded-lg border border-stone-800">
                 {detail.orderItems.map((item) => (
                   <div key={item.id} className="flex items-center gap-4 px-4 py-3">
@@ -235,7 +235,7 @@ export default function AdminOrdersPage() {
 
             {/* Total */}
             <div className="flex items-center justify-end border-t border-stone-800 pt-4 text-lg">
-              <span className="mr-4 text-stone-400">Tổng cộng:</span>
+              <span className="mr-4 text-stone-400">Total:</span>
               <span className="font-bold text-amber-400">${Number(detail.totalPrice).toFixed(2)}</span>
             </div>
           </div>

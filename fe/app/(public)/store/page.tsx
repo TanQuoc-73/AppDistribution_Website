@@ -94,7 +94,7 @@ export default function StorePage() {
             <div>
               <h1 className="text-2xl font-bold text-amber-50">Store</h1>
               <p className="text-sm text-amber-200/60">
-                {data?.meta?.total ?? 0} ứng dụng có sẵn
+                {data?.meta?.total ?? 0} apps available
               </p>
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function StorePage() {
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Tìm kiếm ứng dụng..."
+                placeholder="Search apps..."
                 className="w-full rounded-xl border border-amber-800/30 bg-amber-950/30 py-2.5 pl-10 pr-4 text-sm text-amber-50 placeholder-amber-400/40 outline-none transition focus:border-amber-600/50 focus:ring-1 focus:ring-amber-600/30"
               />
             </div>
@@ -115,7 +115,7 @@ export default function StorePage() {
               type="submit"
               className="btn-autumn rounded-xl px-5 py-2.5 text-sm font-semibold"
             >
-              Tìm kiếm
+              Search
             </button>
             <button
               type="button"
@@ -123,7 +123,7 @@ export default function StorePage() {
               className="flex items-center gap-1.5 rounded-xl border border-amber-800/30 bg-amber-950/30 px-4 py-2.5 text-sm text-amber-200/80 transition hover:border-amber-600/40 lg:hidden"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              Bộ lọc
+              Filters
             </button>
           </form>
         </div>
@@ -136,23 +136,23 @@ export default function StorePage() {
             <div className="sticky top-4 space-y-5">
               {/* Sort */}
               <div className="rounded-xl border border-amber-900/25 bg-amber-950/20 p-4">
-                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-amber-400/70">Sắp xếp</h3>
+                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-amber-400/70">Sort</h3>
                 <select
                   value={params.sort}
                   onChange={(e) => updateFilter({ sort: e.target.value as QueryProductParams['sort'] })}
                   className="w-full rounded-lg border border-amber-800/30 bg-amber-950/40 px-3 py-2 text-sm text-amber-50 outline-none focus:border-amber-600/50"
                 >
-                  <option value="newest">Mới nhất</option>
-                  <option value="popular">Phổ biến nhất</option>
-                  <option value="price_asc">Giá: Thấp → Cao</option>
-                  <option value="price_desc">Giá: Cao → Thấp</option>
-                  <option value="rating">Đánh giá cao</option>
+                  <option value="newest">Newest</option>
+                  <option value="popular">Most Popular</option>
+                  <option value="price_asc">Price: Low → High</option>
+                  <option value="price_desc">Price: High → Low</option>
+                  <option value="rating">Top Rated</option>
                 </select>
               </div>
 
               {/* Price filter */}
               <div className="rounded-xl border border-amber-900/25 bg-amber-950/20 p-4">
-                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-amber-400/70">Giá</h3>
+                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-amber-400/70">Price</h3>
                 <div className="space-y-2">
                   <label className="flex cursor-pointer items-center gap-2 text-sm text-amber-100/80 transition hover:text-amber-50">
                     <input
@@ -162,7 +162,7 @@ export default function StorePage() {
                       onChange={() => updateFilter({ isFree: undefined })}
                       className="accent-amber-500"
                     />
-                    Tất cả
+                    All
                   </label>
                   <label className="flex cursor-pointer items-center gap-2 text-sm text-amber-100/80 transition hover:text-amber-50">
                     <input
@@ -172,7 +172,7 @@ export default function StorePage() {
                       onChange={() => updateFilter({ isFree: true })}
                       className="accent-amber-500"
                     />
-                    Miễn phí
+                    Free
                   </label>
                 </div>
               </div>
@@ -180,7 +180,7 @@ export default function StorePage() {
               {/* Categories */}
               {categories.length > 0 && (
                 <div className="rounded-xl border border-amber-900/25 bg-amber-950/20 p-4">
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-amber-400/70">Danh mục</h3>
+                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-amber-400/70">Categories</h3>
                   <div className="space-y-1">
                     <button
                       onClick={() => updateFilter({ categoryId: undefined })}
@@ -190,7 +190,7 @@ export default function StorePage() {
                           : 'text-amber-100/70 hover:bg-amber-900/20 hover:text-amber-100'
                       }`}
                     >
-                      Tất cả
+                      All
                     </button>
                     {categories.map((cat: Category) => (
                       <button
@@ -237,7 +237,7 @@ export default function StorePage() {
                   onClick={clearAllFilters}
                   className="w-full rounded-xl border border-amber-800/30 py-2 text-sm text-amber-400 transition hover:bg-amber-900/20 hover:text-amber-300"
                 >
-                  ✕ Xoá bộ lọc
+                  ✕ Clear Filters
                 </button>
               )}
             </div>
@@ -248,7 +248,7 @@ export default function StorePage() {
             {/* Active filters pills */}
             {hasActiveFilters && (
               <div className="mb-4 flex flex-wrap items-center gap-2">
-                <span className="text-xs text-amber-400/60">Đang lọc:</span>
+                <span className="text-xs text-amber-400/60">Filtering:</span>
                 {params.search && (
                   <span className="flex items-center gap-1 rounded-full bg-amber-900/30 px-2.5 py-1 text-xs text-amber-200">
                     &quot;{params.search}&quot;
@@ -269,7 +269,7 @@ export default function StorePage() {
                 )}
                 {params.isFree && (
                   <span className="flex items-center gap-1 rounded-full bg-amber-900/30 px-2.5 py-1 text-xs text-amber-200">
-                    Miễn phí
+                    Free
                     <button onClick={() => updateFilter({ isFree: undefined })} className="ml-0.5 text-amber-400 hover:text-white">✕</button>
                   </span>
                 )}
@@ -286,7 +286,7 @@ export default function StorePage() {
                   onClick={() => setParams((p) => ({ ...p, page: (p.page ?? 1) - 1 }))}
                   className="rounded-lg border border-amber-800/30 bg-amber-950/30 px-4 py-2 text-sm text-amber-200 transition hover:border-amber-600/40 disabled:opacity-40"
                 >
-                  ← Trước
+                  ← Previous
                 </button>
                 {/* Page numbers */}
                 {Array.from({ length: data.meta.totalPages }, (_, i) => i + 1)
@@ -316,7 +316,7 @@ export default function StorePage() {
                   onClick={() => setParams((p) => ({ ...p, page: (p.page ?? 1) + 1 }))}
                   className="rounded-lg border border-amber-800/30 bg-amber-950/30 px-4 py-2 text-sm text-amber-200 transition hover:border-amber-600/40 disabled:opacity-40"
                 >
-                  Sau →
+                  Next →
                 </button>
               </div>
             )}

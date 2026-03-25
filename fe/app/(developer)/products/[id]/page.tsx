@@ -46,18 +46,18 @@ function VersionModal({
       qc.invalidateQueries({ queryKey: ['developer-product', productId] });
       onClose();
     },
-    onError: (err: any) => setError(err?.message ?? 'Lỗi khi lưu phiên bản'),
+    onError: (err: any) => setError(err?.message ?? 'Error saving version'),
   });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
       <div className="w-full max-w-lg rounded-xl border border-neutral-700 bg-neutral-900 p-6">
         <h3 className="mb-4 text-lg font-semibold">
-          {existingVersion ? 'Chỉnh sửa phiên bản' : 'Thêm phiên bản mới'}
+          {existingVersion ? 'Edit Version' : 'Add New Version'}
         </h3>
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">Số phiên bản *</label>
+            <label className="mb-1 block text-sm font-medium">Version Number *</label>
             <input
               value={form.version}
               onChange={(e) => setForm((f) => ({ ...f, version: e.target.value }))}
@@ -66,7 +66,7 @@ function VersionModal({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">URL tải về</label>
+            <label className="mb-1 block text-sm font-medium">Download URL</label>
             <input
               value={form.downloadUrl}
               onChange={(e) => setForm((f) => ({ ...f, downloadUrl: e.target.value }))}
@@ -75,7 +75,7 @@ function VersionModal({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Kích thước file (bytes)</label>
+            <label className="mb-1 block text-sm font-medium">File Size (bytes)</label>
             <input
               type="number"
               value={form.fileSize}
@@ -90,7 +90,7 @@ function VersionModal({
               value={form.changelog}
               onChange={(e) => setForm((f) => ({ ...f, changelog: e.target.value }))}
               rows={4}
-              placeholder="Những thay đổi trong phiên bản này…"
+              placeholder="Changes in this version…"
               className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
             />
           </div>
@@ -101,20 +101,20 @@ function VersionModal({
               onChange={(e) => setForm((f) => ({ ...f, isLatest: e.target.checked }))}
               className="accent-blue-500"
             />
-            Đặt làm phiên bản mới nhất
+            Set as latest version
           </label>
         </div>
 
         {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
 
         <div className="mt-5 flex justify-end gap-3">
-          <button onClick={onClose} className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300">Huỷ</button>
+          <button onClick={onClose} className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300">Cancel</button>
           <button
             onClick={() => mutate()}
             disabled={isPending || !form.version.trim()}
             className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60"
           >
-            {isPending ? 'Đang lưu…' : 'Lưu'}
+            {isPending ? 'Saving…' : 'Save'}
           </button>
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function DeveloperProductDetailPage({ params }: Props) {
       qc.invalidateQueries({ queryKey: ['versions', productId] });
       setSaveError(null);
     },
-    onError: (err: any) => setSaveError(err?.message ?? 'Lưu thất bại'),
+    onError: (err: any) => setSaveError(err?.message ?? 'Save failed'),
   });
 
   const { mutate: deleteVersion } = useMutation({
@@ -238,10 +238,10 @@ export default function DeveloperProductDetailPage({ params }: Props) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['product-versions', productId] }),
   });
 
-  if (versionsLoading) return <div className="py-10 text-center text-neutral-400">Đang tải…</div>;
+  if (versionsLoading) return <div className="py-10 text-center text-neutral-400">Loading…</div>;
   if (!product) return (
     <div className="py-10 text-center text-neutral-400">
-      Sản phẩm không tìm thấy. <Link href="/developer/products" className="text-blue-400">← Quay lại</Link>
+      Product not found. <Link href="/developer/products" className="text-blue-400">← Go back</Link>
     </div>
   );
 
@@ -256,18 +256,18 @@ export default function DeveloperProductDetailPage({ params }: Props) {
         <span className={`ml-auto rounded-full px-3 py-1 text-xs ${
           product.is_active ? 'bg-green-900 text-green-300' : 'bg-neutral-800 text-neutral-400'
         }`}>
-          {product.is_active ? 'Hoạt động' : 'Tạm ẩn'}
+          {product.is_active ? 'Active' : 'Hidden'}
         </span>
       </div>
 
       {/* Edit basic info */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-6">
-        <h2 className="mb-4 text-lg font-semibold">Thông tin cơ bản</h2>
+        <h2 className="mb-4 text-lg font-semibold">Basic Information</h2>
         {editForm && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-xs text-neutral-400">Tên sản phẩm</label>
+                <label className="mb-1 block text-xs text-neutral-400">Product Name</label>
                 <input
                   value={editForm.name}
                   onChange={(e) => setEditForm((f: any) => ({ ...f, name: e.target.value }))}
@@ -284,7 +284,7 @@ export default function DeveloperProductDetailPage({ params }: Props) {
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-xs text-neutral-400">Mô tả ngắn</label>
+              <label className="mb-1 block text-xs text-neutral-400">Short Description</label>
               <input
                 value={editForm.shortDescription}
                 onChange={(e) => setEditForm((f: any) => ({ ...f, shortDescription: e.target.value }))}
@@ -293,7 +293,7 @@ export default function DeveloperProductDetailPage({ params }: Props) {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="mb-1 block text-xs text-neutral-400">Giá ($)</label>
+                <label className="mb-1 block text-xs text-neutral-400">Price ($)</label>
                 <input
                   type="number"
                   min="0"
@@ -304,7 +304,7 @@ export default function DeveloperProductDetailPage({ params }: Props) {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-neutral-400">Giảm giá (%)</label>
+                <label className="mb-1 block text-xs text-neutral-400">Discount (%)</label>
                 <input
                   type="number"
                   min="0"
@@ -322,28 +322,28 @@ export default function DeveloperProductDetailPage({ params }: Props) {
                     onChange={(e) => setEditForm((f: any) => ({ ...f, isFree: e.target.checked }))}
                     className="accent-blue-500"
                   />
-                  Miễn phí
+                  Free
                 </label>
               </div>
             </div>
 
             {/* Download / Version info */}
             <div className="border-t border-neutral-800 pt-4">
-              <h3 className="mb-3 text-xs font-semibold text-neutral-300">Link tải & Phiên bản</h3>
+              <h3 className="mb-3 text-xs font-semibold text-neutral-300">Download & Version</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="mb-1 block text-xs text-neutral-400">URL tải về</label>
+                  <label className="mb-1 block text-xs text-neutral-400">Download URL</label>
                   <input
                     value={editForm.downloadUrl}
                     onChange={(e) => setEditForm((f: any) => ({ ...f, downloadUrl: e.target.value }))}
                     className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
                     placeholder="https://drive.google.com/file/d/.../view"
                   />
-                  <p className="mt-1 text-xs text-neutral-500">Link Google Drive sẽ tự động chuyển sang link tải trực tiếp</p>
+                  <p className="mt-1 text-xs text-neutral-500">Google Drive links will be auto-converted to direct download</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="mb-1 block text-xs text-neutral-400">Số phiên bản</label>
+                    <label className="mb-1 block text-xs text-neutral-400">Version Number</label>
                     <input
                       value={editForm.versionString}
                       onChange={(e) => setEditForm((f: any) => ({ ...f, versionString: e.target.value }))}
@@ -352,7 +352,7 @@ export default function DeveloperProductDetailPage({ params }: Props) {
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs text-neutral-400">Kích thước file (bytes)</label>
+                    <label className="mb-1 block text-xs text-neutral-400">File Size (bytes)</label>
                     <input
                       type="number"
                       min="0"
@@ -369,7 +369,7 @@ export default function DeveloperProductDetailPage({ params }: Props) {
             {/* Categories */}
             {allCategories && allCategories.length > 0 && (
               <div>
-                <label className="mb-2 block text-xs text-neutral-400">Danh mục</label>
+                <label className="mb-2 block text-xs text-neutral-400">Categories</label>
                 <div className="flex flex-wrap gap-2">
                   {allCategories.map((cat: any) => (
                     <button
@@ -399,7 +399,7 @@ export default function DeveloperProductDetailPage({ params }: Props) {
             {/* Tags */}
             {allTags && allTags.length > 0 && (
               <div>
-                <label className="mb-2 block text-xs text-neutral-400">Thẻ tag</label>
+                <label className="mb-2 block text-xs text-neutral-400">Tags</label>
                 <div className="flex flex-wrap gap-2">
                   {allTags.map((tag: any) => (
                     <button
@@ -433,7 +433,7 @@ export default function DeveloperProductDetailPage({ params }: Props) {
                 disabled={isSaving}
                 className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60"
               >
-                {isSaving ? 'Đang lưu…' : 'Lưu thay đổi'}
+                {isSaving ? 'Saving…' : 'Save Changes'}
               </button>
             </div>
           </div>
@@ -443,19 +443,19 @@ export default function DeveloperProductDetailPage({ params }: Props) {
       {/* Versions */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Quản lý phiên bản</h2>
+          <h2 className="text-lg font-semibold">Version Management</h2>
           <button
             onClick={() => setVersionModal({ open: true, existing: null })}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
           >
-            + Thêm phiên bản
+            + Add Version
           </button>
         </div>
 
         {pvLoading ? (
-          <p className="text-sm text-neutral-400">Đang tải phiên bản…</p>
+          <p className="text-sm text-neutral-400">Loading versions…</p>
         ) : !productVersions?.length ? (
-          <p className="text-sm text-neutral-500">Chưa có phiên bản nào. Thêm phiên bản đầu tiên để người dùng có thể tải về.</p>
+          <p className="text-sm text-neutral-500">No versions yet. Add the first version so users can download.</p>
         ) : (
           <div className="divide-y divide-neutral-800">
             {productVersions.map((v) => (
@@ -464,15 +464,15 @@ export default function DeveloperProductDetailPage({ params }: Props) {
                   <div className="flex items-center gap-3">
                     <span className="font-semibold text-white">v{v.version}</span>
                     {v.isLatest && (
-                      <span className="rounded-full bg-green-900 px-2 py-0.5 text-xs text-green-300">Mới nhất</span>
+                      <span className="rounded-full bg-green-900 px-2 py-0.5 text-xs text-green-300">Latest</span>
                     )}
                     <span className="text-xs text-neutral-500">
-                      {new Date(v.createdAt).toLocaleDateString('vi-VN')}
+                      {new Date(v.createdAt).toLocaleDateString('en-US')}
                     </span>
                   </div>
                   {v.fileSize && (
                     <p className="mt-0.5 text-xs text-neutral-400">
-                      Kích thước: {(v.fileSize / 1024 / 1024).toFixed(1)} MB
+                      Size: {(v.fileSize / 1024 / 1024).toFixed(1)} MB
                     </p>
                   )}
                   {v.downloadUrl && (
@@ -494,15 +494,15 @@ export default function DeveloperProductDetailPage({ params }: Props) {
                     onClick={() => setVersionModal({ open: true, existing: v })}
                     className="rounded border border-neutral-700 px-3 py-1 text-xs text-neutral-300 hover:border-neutral-500"
                   >
-                    Sửa
+                    Edit
                   </button>
                   <button
                     onClick={() => {
-                      if (confirm(`Xoá phiên bản v${v.version}?`)) deleteVersion(v.id);
+                      if (confirm(`Delete version v${v.version}?`)) deleteVersion(v.id);
                     }}
                     className="rounded border border-red-900 px-3 py-1 text-xs text-red-400 hover:border-red-700"
                   >
-                    Xoá
+                    Delete
                   </button>
                 </div>
               </div>
@@ -515,15 +515,15 @@ export default function DeveloperProductDetailPage({ params }: Props) {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 text-center">
           <p className="text-2xl font-bold text-white">{product._count?.library ?? 0}</p>
-          <p className="text-sm text-neutral-400">Lượt mua</p>
+          <p className="text-sm text-neutral-400">Purchases</p>
         </div>
         <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 text-center">
           <p className="text-2xl font-bold text-white">{product._count?.reviews ?? 0}</p>
-          <p className="text-sm text-neutral-400">Đánh giá</p>
+          <p className="text-sm text-neutral-400">Reviews</p>
         </div>
         <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 text-center">
           <p className="text-2xl font-bold text-white">{productVersions?.length ?? 0}</p>
-          <p className="text-sm text-neutral-400">Phiên bản</p>
+          <p className="text-sm text-neutral-400">Versions</p>
         </div>
       </div>
 

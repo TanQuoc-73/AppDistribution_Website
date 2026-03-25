@@ -62,14 +62,14 @@ export default function AdminUsersPage() {
       setEditUser(null);
       fetchUsers(page);
     } catch (err: any) {
-      setFormError(err?.message ?? 'Có lỗi xảy ra, vui lòng thử lại.');
+      setFormError(err?.message ?? 'An error occurred. Please try again.');
     } finally {
       setSaving(false);
     }
   }
 
   async function handleToggleActive(id: string, username: string, active: boolean) {
-    if (!confirm(`${active ? 'Vô hiệu hoá' : 'Kích hoạt'} tài khoản "${username}"?`)) return;
+    if (!confirm(`${active ? 'Deactivate' : 'Activate'} account "${username}"?`)) return;
     try {
       await adminApi.toggleUserActive(id);
       fetchUsers(page);
@@ -77,7 +77,7 @@ export default function AdminUsersPage() {
   }
 
   async function handleDelete(id: string, username: string) {
-    if (!confirm(`Xoá tài khoản "${username}"? Hành động này không thể hoàn tác.`)) return;
+    if (!confirm(`Delete account "${username}"? This action cannot be undone.`)) return;
     try {
       await adminApi.deleteUser(id);
       fetchUsers(page);
@@ -100,8 +100,8 @@ export default function AdminUsersPage() {
               <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">Active</th>
               <th className="px-4 py-3">Wallet</th>
-              <th className="px-4 py-3">Ngày tạo</th>
-              <th className="px-4 py-3 text-right">Thao tác</th>
+              <th className="px-4 py-3">Created</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-800/60">
@@ -116,7 +116,7 @@ export default function AdminUsersPage() {
             ) : result?.data.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-stone-500">
-                  Không có người dùng
+                  No users found
                 </td>
               </tr>
             ) : (
@@ -163,14 +163,14 @@ export default function AdminUsersPage() {
                         <button
                           onClick={() => openEdit(u)}
                           className="rounded p-1.5 text-stone-400 transition hover:bg-amber-900/30 hover:text-amber-300"
-                          title="Sửa"
+                          title="Edit"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(u.id, u.username)}
                           className="rounded p-1.5 text-stone-400 transition hover:bg-red-900/30 hover:text-red-400"
-                          title="Xoá"
+                          title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -191,7 +191,7 @@ export default function AdminUsersPage() {
             onClick={() => setPage((p) => p - 1)}
             className="rounded-lg border border-stone-700 px-3 py-1.5 text-sm text-stone-300 transition hover:bg-stone-800 disabled:opacity-40"
           >
-            Trước
+            Previous
           </button>
           <span className="text-sm text-stone-500">{page} / {result.meta.totalPages}</span>
           <button
@@ -199,7 +199,7 @@ export default function AdminUsersPage() {
             onClick={() => setPage((p) => p + 1)}
             className="rounded-lg border border-stone-700 px-3 py-1.5 text-sm text-stone-300 transition hover:bg-stone-800 disabled:opacity-40"
           >
-            Sau
+            Next
           </button>
         </div>
       )}
@@ -208,7 +208,7 @@ export default function AdminUsersPage() {
       <Modal
         open={!!editUser}
         onClose={() => setEditUser(null)}
-        title="Sửa thông tin người dùng"
+        title="Edit User"
       >
         <form onSubmit={(e) => { e.preventDefault(); handleSaveUser(); }} className="space-y-4">
           <div>
@@ -259,14 +259,14 @@ export default function AdminUsersPage() {
               onClick={() => setEditUser(null)}
               className="rounded-lg border border-stone-700 px-4 py-2 text-sm text-stone-300 transition hover:bg-stone-800"
             >
-              Huỷ
+              Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
               className="rounded-lg bg-amber-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-amber-500 disabled:opacity-50"
             >
-              {saving ? 'Đang lưu…' : 'Cập nhật'}
+              {saving ? 'Saving…' : 'Update'}
             </button>
           </div>
         </form>

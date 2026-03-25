@@ -1,0 +1,11 @@
+email,password,expected_result,description
+valid_user@example.com,ValidPassword123!,success,Valid credentials login
+another_user@example.com,AnotherPass456!,success,Second valid user login
+invalidemail,ValidPassword123!,error,Invalid email format
+valid_user@example.com,WrongPassword,error,Incorrect password
+nonexistent@example.com,SomePassword123!,error,Non-existent account
+,ValidPassword123!,error,Empty email field
+valid_user@example.com,,error,Empty password field
+,,error,Both fields empty
+admin@example.com,AdminPass123!,success,Admin user login
+developer@example.com,DevPass123!,success,Developer user login

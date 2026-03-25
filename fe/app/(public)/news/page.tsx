@@ -6,7 +6,7 @@ import type { NewsArticle } from '@/types';
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('vi-VN', {
+  return new Date(dateStr).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -19,8 +19,8 @@ function getExcerpt(content: string, maxLength = 150) {
 }
 
 export const metadata = {
-  title: 'Tin tức | AppDistribution',
-  description: 'Cập nhật tin tức mới nhất về ứng dụng và nền tảng phân phối.',
+  title: 'News | AppDistribution',
+  description: 'Latest news about apps and the distribution platform.',
 };
 
 export default async function NewsListPage({
@@ -50,11 +50,11 @@ export default async function NewsListPage({
         <div className="container mx-auto max-w-6xl px-4 text-center">
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-amber-600">
             <Newspaper className="inline -mt-0.5 mr-1 h-3.5 w-3.5" />
-            Tin tức
+            News
           </p>
           <h1 className="text-4xl font-bold text-stone-50 lg:text-5xl">Latest News</h1>
           <p className="mt-3 text-stone-400">
-            Cập nhật tin tức mới nhất về ứng dụng và nền tảng
+            Latest news about apps and the platform
           </p>
         </div>
       </section>
@@ -63,7 +63,7 @@ export default async function NewsListPage({
         {articles.length === 0 ? (
           <div className="flex flex-col items-center gap-4 py-24 text-stone-500">
             <Newspaper className="h-12 w-12 opacity-30" />
-            <p>Chưa có bài viết nào.</p>
+            <p>No articles yet.</p>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -102,7 +102,7 @@ export default async function NewsListPage({
                     {article.excerpt || getExcerpt(article.content ?? '')}
                   </p>
                   <span className="mt-auto pt-2 text-xs font-medium text-amber-500 transition-colors group-hover:text-amber-400">
-                    Đọc tiếp →
+                    Read more →
                   </span>
                 </div>
               </Link>
@@ -118,7 +118,7 @@ export default async function NewsListPage({
                 href={`/news?page=${page - 1}`}
                 className="flex items-center gap-1 rounded-lg border border-stone-700 px-3 py-2 text-sm text-stone-300 transition hover:border-amber-700 hover:text-amber-400"
               >
-                <ChevronLeft className="h-4 w-4" /> Trước
+                <ChevronLeft className="h-4 w-4" /> Previous
               </Link>
             )}
             {Array.from({ length: meta.totalPages }, (_, i) => i + 1)
@@ -141,7 +141,7 @@ export default async function NewsListPage({
                 href={`/news?page=${page + 1}`}
                 className="flex items-center gap-1 rounded-lg border border-stone-700 px-3 py-2 text-sm text-stone-300 transition hover:border-amber-700 hover:text-amber-400"
               >
-                Sau <ChevronRight className="h-4 w-4" />
+                Next <ChevronRight className="h-4 w-4" />
               </Link>
             )}
           </div>

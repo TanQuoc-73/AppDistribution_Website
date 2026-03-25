@@ -127,7 +127,7 @@ export default function AdminProductsPage() {
       setModalOpen(false);
       fetchProducts(page);
     } catch (err: any) {
-      setFormError(err?.message ?? 'Có lỗi xảy ra, vui lòng thử lại.');
+      setFormError(err?.message ?? 'An error occurred. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -148,7 +148,7 @@ export default function AdminProductsPage() {
   }
 
   async function handleDelete(id: string, name: string) {
-    if (!confirm(`Xoá "${name}"? Hành động này không thể hoàn tác.`)) return;
+    if (!confirm(`Delete "${name}"? This action cannot be undone.`)) return;
     try {
       await adminApi.deleteProduct(id);
       fetchProducts(page);
@@ -167,7 +167,7 @@ export default function AdminProductsPage() {
             onClick={openCreate}
             className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-500"
           >
-            <Plus className="h-4 w-4" /> Thêm mới
+            <Plus className="h-4 w-4" /> Add New
           </button>
         </div>
       </div>
@@ -176,12 +176,12 @@ export default function AdminProductsPage() {
         <table className="w-full text-sm">
           <thead className="border-b border-stone-800 bg-stone-900/80 text-left text-stone-400">
             <tr>
-              <th className="px-4 py-3">Tên</th>
+              <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Developer</th>
-              <th className="px-4 py-3">Giá</th>
-              <th className="px-4 py-3">Trạng thái</th>
+              <th className="px-4 py-3">Price</th>
+              <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Featured</th>
-              <th className="px-4 py-3 text-right">Thao tác</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-800/60">
@@ -196,7 +196,7 @@ export default function AdminProductsPage() {
             ) : result?.data.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-stone-500">
-                  Không có sản phẩm
+                  No products found
                 </td>
               </tr>
             ) : (
@@ -222,7 +222,7 @@ export default function AdminProductsPage() {
                       {(p.developer as any)?.name ?? '—'}
                     </td>
                     <td className="px-4 py-3 text-stone-300">
-                      {p.isFree ? 'Miễn phí' : `$${Number(p.price).toFixed(2)}`}
+                      {p.isFree ? 'Free' : `$${Number(p.price).toFixed(2)}`}
                     </td>
                     <td className="px-4 py-3">
                       <button
@@ -240,7 +240,7 @@ export default function AdminProductsPage() {
                       <button
                         onClick={() => handleToggleFeatured(p.id, p)}
                         className={`transition ${featured ? 'text-amber-400' : 'text-stone-600 hover:text-amber-400'}`}
-                        title={featured ? 'Bỏ featured' : 'Đặt featured'}
+                        title={featured ? 'Unfeature' : 'Set as Featured'}
                       >
                         <Star className={`h-4 w-4 ${featured ? 'fill-amber-400' : ''}`} />
                       </button>
@@ -250,14 +250,14 @@ export default function AdminProductsPage() {
                         <button
                           onClick={() => openEdit(p)}
                           className="rounded p-1.5 text-stone-400 transition hover:bg-amber-900/30 hover:text-amber-300"
-                          title="Sửa"
+                          title="Edit"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(p.id, p.name)}
                           className="rounded p-1.5 text-stone-400 transition hover:bg-red-900/30 hover:text-red-400"
-                          title="Xoá"
+                          title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -278,7 +278,7 @@ export default function AdminProductsPage() {
             onClick={() => setPage((p) => p - 1)}
             className="rounded-lg border border-stone-700 px-3 py-1.5 text-sm text-stone-300 transition hover:bg-stone-800 disabled:opacity-40"
           >
-            Trước
+            Previous
           </button>
           <span className="text-sm text-stone-500">
             {page} / {result.meta.totalPages}
@@ -288,7 +288,7 @@ export default function AdminProductsPage() {
             onClick={() => setPage((p) => p + 1)}
             className="rounded-lg border border-stone-700 px-3 py-1.5 text-sm text-stone-300 transition hover:bg-stone-800 disabled:opacity-40"
           >
-            Sau
+            Next
           </button>
         </div>
       )}
@@ -297,7 +297,7 @@ export default function AdminProductsPage() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingId ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}
+        title={editingId ? 'Edit Product' : 'Add New Product'}
         wide
       >
         <form
@@ -306,7 +306,7 @@ export default function AdminProductsPage() {
         >
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 block text-sm text-stone-400">Tên *</label>
+              <label className="mb-1 block text-sm text-stone-400">Name *</label>
               <input
                 required
                 value={form.name}
@@ -320,14 +320,14 @@ export default function AdminProductsPage() {
                 required
                 value={form.slug}
                 onChange={(e) => set('slug', e.target.value)}
-                placeholder="ten-san-pham"
+                placeholder="product-slug"
                 className="w-full rounded-lg border border-stone-700 bg-stone-800/60 px-3 py-2 text-sm text-stone-100 outline-none focus:border-amber-700"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-stone-400">Mô tả ngắn</label>
+            <label className="mb-1 block text-sm text-stone-400">Short Description</label>
             <input
               value={form.shortDescription}
               onChange={(e) => set('shortDescription', e.target.value)}
@@ -336,7 +336,7 @@ export default function AdminProductsPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-stone-400">Mô tả chi tiết</label>
+            <label className="mb-1 block text-sm text-stone-400">Full Description</label>
             <textarea
               value={form.description}
               onChange={(e) => set('description', e.target.value)}
@@ -357,7 +357,7 @@ export default function AdminProductsPage() {
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="mb-1 block text-sm text-stone-400">Giá ($)</label>
+              <label className="mb-1 block text-sm text-stone-400">Price ($)</label>
               <input
                 type="number"
                 step="0.01"
@@ -368,7 +368,7 @@ export default function AdminProductsPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm text-stone-400">Giảm giá (%)</label>
+              <label className="mb-1 block text-sm text-stone-400">Discount (%)</label>
               <input
                 type="number"
                 min="0"
@@ -379,7 +379,7 @@ export default function AdminProductsPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm text-stone-400">Độ tuổi</label>
+              <label className="mb-1 block text-sm text-stone-400">Age Rating</label>
               <select
                 value={form.ageRating}
                 onChange={(e) => set('ageRating', e.target.value)}
@@ -401,14 +401,14 @@ export default function AdminProductsPage() {
                 onChange={(e) => set('developerId', e.target.value)}
                 className="w-full rounded-lg border border-stone-700 bg-stone-800/60 px-3 py-2 text-sm text-stone-100 outline-none focus:border-amber-700"
               >
-                <option value="">— Chọn developer —</option>
+                <option value="">— Select developer —</option>
                 {developers.map((d) => (
                   <option key={d.id} value={d.id}>{d.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm text-stone-400">Ngày phát hành</label>
+              <label className="mb-1 block text-sm text-stone-400">Release Date</label>
               <input
                 type="date"
                 value={form.releaseDate}
@@ -425,26 +425,26 @@ export default function AdminProductsPage() {
               onChange={(e) => set('isFree', e.target.checked)}
               className="rounded border-stone-600"
             />
-            Miễn phí
+            Free
           </label>
 
           {/* Download / Version */}
           <div className="border-t border-stone-700 pt-4">
-            <h3 className="mb-3 text-sm font-semibold text-stone-300">Link tải & Phiên bản</h3>
+            <h3 className="mb-3 text-sm font-semibold text-stone-300">Download & Version</h3>
             <div className="space-y-3">
               <div>
-                <label className="mb-1 block text-sm text-stone-400">URL tải về</label>
+                <label className="mb-1 block text-sm text-stone-400">Download URL</label>
                 <input
                   value={form.downloadUrl}
                   onChange={(e) => set('downloadUrl', e.target.value)}
                   placeholder="https://drive.google.com/file/d/.../view"
                   className="w-full rounded-lg border border-stone-700 bg-stone-800/60 px-3 py-2 text-sm text-stone-100 outline-none focus:border-amber-700"
                 />
-                <p className="mt-1 text-xs text-stone-500">Link Google Drive sẽ tự động convert sang direct download</p>
+                <p className="mt-1 text-xs text-stone-500">Google Drive links will be auto-converted to direct download</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-1 block text-sm text-stone-400">Số phiên bản</label>
+                  <label className="mb-1 block text-sm text-stone-400">Version Number</label>
                   <input
                     value={form.versionString}
                     onChange={(e) => set('versionString', e.target.value)}
@@ -453,7 +453,7 @@ export default function AdminProductsPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm text-stone-400">Kích thước file (bytes)</label>
+                  <label className="mb-1 block text-sm text-stone-400">File Size (bytes)</label>
                   <input
                     type="number"
                     min="0"
@@ -479,14 +479,14 @@ export default function AdminProductsPage() {
               onClick={() => setModalOpen(false)}
               className="rounded-lg border border-stone-700 px-4 py-2 text-sm text-stone-300 transition hover:bg-stone-800"
             >
-              Huỷ
+              Cancel
             </button>
             <button
               type="submit"
               disabled={saving || !form.name || !form.slug}
               className="rounded-lg bg-amber-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-amber-500 disabled:opacity-50"
             >
-              {saving ? 'Đang lưu…' : editingId ? 'Cập nhật' : 'Tạo mới'}
+              {saving ? 'Saving…' : editingId ? 'Update' : 'Create'}
             </button>
           </div>
         </form>

@@ -21,13 +21,13 @@ export default function CartPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">Giỏ hàng</h1>
+      <h1 className="mb-6 text-2xl font-bold">Shopping Cart</h1>
 
       {!items?.length ? (
         <div className="py-20 text-center">
-          <p className="mb-4 text-neutral-400">Giỏ hàng trống.</p>
+          <p className="mb-4 text-neutral-400">Your cart is empty.</p>
           <Link href="/store" className="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-500">
-            Khám phá cửa hàng
+            Browse Store
           </Link>
         </div>
       ) : (
@@ -44,29 +44,29 @@ export default function CartPage() {
                   {item.product.name}
                 </Link>
                 <p className="text-sm text-neutral-400">
-                  {item.product.isFree ? 'Miễn phí' : `$${(parseFloat(item.product.price) * (1 - item.product.discountPercent / 100)).toFixed(2)}`}
+                  {item.product.isFree ? 'Free' : `$${(parseFloat(item.product.price) * (1 - item.product.discountPercent / 100)).toFixed(2)}`}
                 </p>
               </div>
               <button
                 onClick={() => removeItem(item.productId)}
                 className="text-sm text-red-400 hover:text-red-300"
               >
-                Xoá
+                Remove
               </button>
             </div>
           ))}
 
           <div className="mt-4 flex items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900 p-4">
-            <span className="text-lg font-semibold">Tổng: ${total.toFixed(2)}</span>
+            <span className="text-lg font-semibold">Total: ${total.toFixed(2)}</span>
             <div className="flex gap-3">
               <button onClick={() => clearCart()} className="text-sm text-neutral-400 hover:text-white">
-                Xoá giỏ
+                Clear Cart
               </button>
               <button
                 onClick={() => router.push('/checkout')}
                 className="rounded bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-500"
               >
-                Thanh toán
+                Checkout
               </button>
             </div>
           </div>

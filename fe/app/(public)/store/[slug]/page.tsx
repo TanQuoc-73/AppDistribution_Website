@@ -50,7 +50,7 @@ export default function ProductDetailPage({ params }: Props) {
   const devName = product.developer?.companyName || (product.developer as any)?.name;
 
   const finalPrice = product.isFree
-    ? 'Miễn phí'
+    ? 'Free'
     : product.discountPercent > 0
       ? `$${(parseFloat(product.price) * (1 - product.discountPercent / 100)).toFixed(2)}`
       : `$${parseFloat(product.price).toFixed(2)}`;
@@ -91,10 +91,10 @@ export default function ProductDetailPage({ params }: Props) {
             <div className="mb-6 flex items-center gap-3 text-sm text-amber-400/50">
               <span className="text-amber-500">★</span> {rating.toFixed(1)}
               {product.reviewCount != null && (
-                <span>· {product.reviewCount} đánh giá</span>
+                <span>· {product.reviewCount} reviews</span>
               )}
               {product.totalDownloads != null && product.totalDownloads > 0 && (
-                <span>· {product.totalDownloads.toLocaleString()} lượt tải</span>
+                <span>· {product.totalDownloads.toLocaleString()} downloads</span>
               )}
             </div>
 
@@ -114,7 +114,7 @@ export default function ProductDetailPage({ params }: Props) {
             {/* Screenshots gallery */}
             {product.media && product.media.length > 0 && (
               <div className="mb-8">
-                <h2 className="mb-3 text-lg font-semibold text-amber-100">Ảnh chụp màn hình</h2>
+                <h2 className="mb-3 text-lg font-semibold text-amber-100">Screenshots</h2>
                 <div className="flex gap-3 overflow-x-auto pb-2">
                   {product.media.map((m) => (
                     <div key={m.id} className="relative h-36 w-64 shrink-0 overflow-hidden rounded-xl border border-amber-900/20 bg-amber-950/30">
@@ -127,7 +127,7 @@ export default function ProductDetailPage({ params }: Props) {
 
             {/* Description */}
             <div className="mb-8">
-              <h2 className="mb-3 text-lg font-semibold text-amber-100">Giới thiệu</h2>
+              <h2 className="mb-3 text-lg font-semibold text-amber-100">About</h2>
               {product.shortDescription && (
                 <p className="mb-3 text-sm italic text-amber-300/60">{product.shortDescription}</p>
               )}
@@ -157,7 +157,7 @@ export default function ProductDetailPage({ params }: Props) {
             {/* Version history */}
             {versions && versions.length > 0 && (
               <div className="mb-8">
-                <h2 className="mb-3 text-lg font-semibold text-amber-100">Lịch sử phiên bản</h2>
+                <h2 className="mb-3 text-lg font-semibold text-amber-100">Version History</h2>
                 <div className="space-y-3">
                   {versions.map((v) => (
                     <div key={v.id} className="rounded-xl border border-amber-900/25 bg-amber-950/20 p-4">
@@ -165,16 +165,16 @@ export default function ProductDetailPage({ params }: Props) {
                         <span className="font-semibold text-amber-50">v{v.version}</span>
                         {v.isLatest && (
                           <span className="rounded-full bg-amber-600/20 px-2 py-0.5 text-xs font-medium text-amber-300">
-                            Mới nhất
+                            Latest
                           </span>
                         )}
                         <span className="ml-auto text-xs text-amber-400/40">
-                          {new Date(v.createdAt).toLocaleDateString('vi-VN')}
+                          {new Date(v.createdAt).toLocaleDateString('en-US')}
                         </span>
                       </div>
                       {v.fileSize && (
                         <p className="mt-1 text-xs text-amber-400/50">
-                          Kích thước: {(v.fileSize / 1024 / 1024).toFixed(1)} MB
+                          Size: {(v.fileSize / 1024 / 1024).toFixed(1)} MB
                         </p>
                       )}
                       {v.changelog && (
@@ -189,16 +189,16 @@ export default function ProductDetailPage({ params }: Props) {
             {/* System requirements */}
             {product.platforms && product.platforms.length > 0 && (
               <div>
-                <h2 className="mb-3 text-lg font-semibold text-amber-100">Yêu cầu hệ thống</h2>
+                <h2 className="mb-3 text-lg font-semibold text-amber-100">System Requirements</h2>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {product.platforms.map((p) => (
                     <div key={p.id} className="rounded-xl border border-amber-900/25 bg-amber-950/20 p-4">
                       <h3 className="mb-2 text-sm font-semibold text-amber-300">{(p as any).platform || p.platformName}</h3>
                       <dl className="space-y-1 text-xs text-amber-100/60">
-                        {((p as any).min_os || p.minimumOs) && <div><dt className="inline font-medium text-amber-200/70">OS tối thiểu:</dt> {(p as any).min_os || p.minimumOs}</div>}
-                        {(p.recommendedOs || (p as any).recommended_os) && <div><dt className="inline font-medium text-amber-200/70">OS đề nghị:</dt> {p.recommendedOs || (p as any).recommended_os}</div>}
-                        {((p as any).min_memory_mb || p.minimumRam) && <div><dt className="inline font-medium text-amber-200/70">RAM tối thiểu:</dt> {(p as any).min_memory_mb || p.minimumRam} MB</div>}
-                        {((p as any).min_storage_mb || p.storageRequired) && <div><dt className="inline font-medium text-amber-200/70">Dung lượng:</dt> {(p as any).min_storage_mb || p.storageRequired} MB</div>}
+                        {((p as any).min_os || p.minimumOs) && <div><dt className="inline font-medium text-amber-200/70">Min OS:</dt> {(p as any).min_os || p.minimumOs}</div>}
+                        {(p.recommendedOs || (p as any).recommended_os) && <div><dt className="inline font-medium text-amber-200/70">Recommended OS:</dt> {p.recommendedOs || (p as any).recommended_os}</div>}
+                        {((p as any).min_memory_mb || p.minimumRam) && <div><dt className="inline font-medium text-amber-200/70">Min RAM:</dt> {(p as any).min_memory_mb || p.minimumRam} MB</div>}
+                        {((p as any).min_storage_mb || p.storageRequired) && <div><dt className="inline font-medium text-amber-200/70">Storage:</dt> {(p as any).min_storage_mb || p.storageRequired} MB</div>}
                       </dl>
                     </div>
                   ))}
@@ -236,26 +236,26 @@ export default function ProductDetailPage({ params }: Props) {
 
               <div className="mt-4 space-y-2 border-t border-amber-900/20 pt-4 text-xs text-amber-400/50">
                 <div className="flex items-center justify-between">
-                  <span>Đánh giá</span>
+                  <span>Rating</span>
                   <span className="text-amber-300">
                     <span className="text-amber-500">★</span> {rating.toFixed(1)} ({product.reviewCount ?? 0})
                   </span>
                 </div>
                 {product.releaseDate && (
                   <div className="flex items-center justify-between">
-                    <span>Ngày phát hành</span>
-                    <span className="text-amber-300">{new Date(product.releaseDate).toLocaleDateString('vi-VN')}</span>
+                    <span>Release Date</span>
+                    <span className="text-amber-300">{new Date(product.releaseDate).toLocaleDateString('en-US')}</span>
                   </div>
                 )}
                 {product.ageRating && (
                   <div className="flex items-center justify-between">
-                    <span>Độ tuổi</span>
+                    <span>Age Rating</span>
                     <span className="text-amber-300 capitalize">{product.ageRating.replace('_', ' ')}</span>
                   </div>
                 )}
                 {versions && versions.length > 0 && (
                   <div className="flex items-center justify-between">
-                    <span>Phiên bản</span>
+                    <span>Version</span>
                     <span className="text-amber-300">
                       v{versions.find((v) => v.isLatest)?.version ?? versions[0]?.version}
                     </span>
@@ -266,7 +266,7 @@ export default function ProductDetailPage({ params }: Props) {
               {/* Categories links */}
               {cats.length > 0 && (
                 <div className="mt-4 border-t border-amber-900/20 pt-4">
-                  <span className="text-xs text-amber-400/50">Danh mục:</span>
+                  <span className="text-xs text-amber-400/50">Categories:</span>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {cats.map((c: any) => (
                       <Link key={c.id} href={`/store?categoryId=${c.id}`} className="rounded-full bg-amber-900/20 px-2 py-0.5 text-xs text-amber-300/80 transition hover:bg-amber-900/30">

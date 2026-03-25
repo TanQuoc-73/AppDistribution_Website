@@ -77,7 +77,7 @@ export default function AddToCartButton({ productId, isFree, thumbnailUrl }: Pro
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700/30 py-2.5 text-center font-semibold text-emerald-300 ring-1 ring-emerald-700/50 transition hover:bg-emerald-700/50"
       >
         <Check className="h-4 w-4" />
-        Đã mua — Vào thư viện
+        Purchased — Go to Library
       </Link>
     );
   }
@@ -92,7 +92,7 @@ export default function AddToCartButton({ productId, isFree, thumbnailUrl }: Pro
         className="flex w-full items-center justify-center gap-2 btn-autumn rounded-xl py-2.5 font-semibold text-white disabled:opacity-60"
       >
         <Download className="h-4 w-4" />
-        {claiming ? 'Đang xử lý…' : 'Tải miễn phí'}
+        {claiming ? 'Processing…' : 'Get Free'}
       </button>
     );
   }
@@ -104,7 +104,7 @@ export default function AddToCartButton({ productId, isFree, thumbnailUrl }: Pro
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-700/20 py-2.5 text-center font-semibold text-amber-300 ring-1 ring-amber-700/50 transition hover:bg-amber-700/40"
       >
         <ShoppingCart className="h-4 w-4" />
-        Đã có trong giỏ hàng
+        Already in Cart
       </Link>
     );
   }
@@ -116,7 +116,7 @@ export default function AddToCartButton({ productId, isFree, thumbnailUrl }: Pro
       disabled={isPending}
       className="btn-autumn w-full rounded-xl py-2.5 font-semibold text-white disabled:opacity-60"
     >
-      {isPending ? 'Đang thêm…' : 'Thêm vào giỏ'}
+      {isPending ? 'Adding…' : 'Add to Cart'}
     </button>
   );
 }

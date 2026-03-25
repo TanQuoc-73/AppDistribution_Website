@@ -1,0 +1,11 @@
+username,email,password,expected_result,description
+testuser1,testuser1@example.com,ValidPassword123!,success,Valid registration
+testuser2,testuser2@example.com,AnotherPass456!,success,Another valid registration
+ab,short@example.com,ValidPassword123!,error,Username too short (min 3)
+a]very_long_username_that_exceeds_the_max,long@example.com,ValidPassword123!,error,Username too long (max 30)
+validuser,not-an-email,ValidPassword123!,error,Invalid email format
+validuser,valid@example.com,short,error,Password too short (min 8)
+,valid@example.com,ValidPassword123!,error,Empty username
+validuser,,ValidPassword123!,error,Empty email
+validuser,valid@example.com,,error,Empty password
+,,,error,All fields empty

@@ -5,7 +5,7 @@ import type { NewsArticle } from '@/types';
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('vi-VN', {
+  return new Date(dateStr).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -82,7 +82,7 @@ export default function NewsSection({ articles = [] }: NewsSectionProps) {
                 </p>
                 <div className="mt-auto pt-3">
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 transition group-hover:text-amber-400">
-                    Đọc tiếp
+                    Read more
                     <ChevronRight className="h-3.5 w-3.5" />
                   </span>
                 </div>

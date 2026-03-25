@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalVariableEntities>
+   <description>Default execution profile for AppDistribution Website testing</description>
+   <name>default</name>
+   <tag></tag>
+   <defaultProfile>true</defaultProfile>
+   <GlobalVariableEntity>
+      <description>Base URL of the application under test</description>
+      <initValue>'http://localhost:3000'</initValue>
+      <name>baseUrl</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>API base URL for backend services</description>
+      <initValue>'http://localhost:4000/api'</initValue>
+      <name>apiBaseUrl</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Valid test user email</description>
+      <initValue>'testuser@example.com'</initValue>
+      <name>validEmail</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Valid test user password (encrypted)</description>
+      <initValue>'TestPassword123!'</initValue>
+      <name>validPassword</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Admin user email</description>
+      <initValue>'admin@example.com'</initValue>
+      <name>adminEmail</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Admin user password (encrypted)</description>
+      <initValue>'AdminPassword123!'</initValue>
+      <name>adminPassword</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Developer user email</description>
+      <initValue>'developer@example.com'</initValue>
+      <name>developerEmail</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Developer user password (encrypted)</description>
+      <initValue>'DevPassword123!'</initValue>
+      <name>developerPassword</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Valid coupon code for testing</description>
+      <initValue>'DISCOUNT10'</initValue>
+      <name>validCouponCode</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Global timeout in seconds for element waits</description>
+      <initValue>10</initValue>
+      <name>globalTimeout</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Browser type (Chrome, Firefox, Edge)</description>
+      <initValue>'Chrome'</initValue>
+      <name>browser</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>Screenshot output directory</description>
+      <initValue>'Reports/Screenshots'</initValue>
+      <name>screenshotDir</name>
+   </GlobalVariableEntity>
+</GlobalVariableEntities>
