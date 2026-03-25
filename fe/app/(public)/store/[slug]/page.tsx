@@ -2,10 +2,13 @@
 
 import { use } from 'react';
 import { useProduct } from '@/hooks/useProducts';
+import { useQuery } from '@tanstack/react-query';
+import { versionsApi } from '@/lib/api/endpoints';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import AddToCartButton from '@/components/product/AddToCartButton';
+import type { ProductVersion } from '@/types';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -14,6 +17,16 @@ interface Props {
 export default function ProductDetailPage({ params }: Props) {
   const { slug } = use(params);
   const { data: product, isLoading, error } = useProduct(slug);
+
+  // Fetch all versions for this product
+  const { data: versions } = useQuery({
+    queryKey: ['product-versions-public', slug],
+    queryFn: async () => {
+      const res = await versionsApi.getBySlug(slug);
+      return (res.data?.data ?? []) as ProductVersion[];
+    },
+    enabled: !!slug && !isLoading && !error,
+  });
 
   if (isLoading) {
     return (
@@ -141,6 +154,38 @@ export default function ProductDetailPage({ params }: Props) {
               </div>
             )}
 
+            {/* Version history */}
+            {versions && versions.length > 0 && (
+              <div className="mb-8">
+                <h2 className="mb-3 text-lg font-semibold text-amber-100">Lịch sử phiên bản</h2>
+                <div className="space-y-3">
+                  {versions.map((v) => (
+                    <div key={v.id} className="rounded-xl border border-amber-900/25 bg-amber-950/20 p-4">
+                      <div className="flex items-center gap-3">
+                        <span className="font-semibold text-amber-50">v{v.version}</span>
+                        {v.isLatest && (
+                          <span className="rounded-full bg-amber-600/20 px-2 py-0.5 text-xs font-medium text-amber-300">
+                            Mới nhất
+                          </span>
+                        )}
+                        <span className="ml-auto text-xs text-amber-400/40">
+                          {new Date(v.createdAt).toLocaleDateString('vi-VN')}
+                        </span>
+                      </div>
+                      {v.fileSize && (
+                        <p className="mt-1 text-xs text-amber-400/50">
+                          Kích thước: {(v.fileSize / 1024 / 1024).toFixed(1)} MB
+                        </p>
+                      )}
+                      {v.changelog && (
+                        <p className="mt-2 whitespace-pre-line text-sm text-amber-100/60">{v.changelog}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* System requirements */}
             {product.platforms && product.platforms.length > 0 && (
               <div>
@@ -187,7 +232,7 @@ export default function ProductDetailPage({ params }: Props) {
                 </span>
               </div>
 
-              <AddToCartButton productId={product.id} isFree={product.isFree} />
+              <AddToCartButton productId={product.id} isFree={product.isFree} thumbnailUrl={product.thumbnailUrl} />
 
               <div className="mt-4 space-y-2 border-t border-amber-900/20 pt-4 text-xs text-amber-400/50">
                 <div className="flex items-center justify-between">
@@ -206,6 +251,14 @@ export default function ProductDetailPage({ params }: Props) {
                   <div className="flex items-center justify-between">
                     <span>Độ tuổi</span>
                     <span className="text-amber-300 capitalize">{product.ageRating.replace('_', ' ')}</span>
+                  </div>
+                )}
+                {versions && versions.length > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span>Phiên bản</span>
+                    <span className="text-amber-300">
+                      v{versions.find((v) => v.isLatest)?.version ?? versions[0]?.version}
+                    </span>
                   </div>
                 )}
               </div>

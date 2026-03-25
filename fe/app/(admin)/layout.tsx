@@ -2,16 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Package, Receipt, Users } from 'lucide-react';
+import { LayoutDashboard, Package, Receipt, Users, Newspaper, Image, Tag } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/layout/header/Header';
 
 const navItems: { label: string; href: string; icon: LucideIcon }[] = [
-  { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-  { label: 'Products',  href: '/admin/products',  icon: Package },
-  { label: 'Orders',    href: '/admin/orders',    icon: Receipt },
-  { label: 'Users',     href: '/admin/users',     icon: Users },
+  { label: 'Dashboard',  href: '/admin/dashboard',   icon: LayoutDashboard },
+  { label: 'Products',   href: '/admin/products',    icon: Package },
+  { label: 'Categories', href: '/admin/categories',  icon: Tag },
+  { label: 'Orders',     href: '/admin/orders',      icon: Receipt },
+  { label: 'Users',      href: '/admin/users',       icon: Users },
+  { label: 'News',       href: '/admin/news',        icon: Newspaper },
+  { label: 'Banners',    href: '/admin/banners',     icon: Image },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

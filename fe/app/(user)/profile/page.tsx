@@ -62,7 +62,17 @@ export default function ProfilePage() {
 
   const badge = profile ? (roleBadge[profile.role] ?? roleBadge.user) : roleBadge.user;
   const username = profile?.username ?? user.email?.split('@')[0] ?? 'User';
-  const displayNameValue = profile?.displayName || username;
+  const displayNameValue =
+    profile?.displayName ||
+    profile?.username ||
+    (user?.user_metadata?.full_name as string | undefined) ||
+    (user?.user_metadata?.name as string | undefined) ||
+    user?.email?.split('@')[0] ||
+    'User';
+  const avatarUrl: string | null =
+    profile?.avatarUrl ||
+    (user?.user_metadata?.avatar_url as string | undefined) ||
+    null;
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -70,10 +80,11 @@ export default function ProfilePage() {
       <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-6">
         <div className="flex items-center gap-5">
           {/* Avatar */}
-          {profile?.avatarUrl ? (
+          {avatarUrl ? (
             <img
-              src={profile.avatarUrl}
+              src={avatarUrl}
               alt={username}
+              referrerPolicy="no-referrer"
               className="h-20 w-20 rounded-full object-cover ring-2 ring-amber-600/40"
             />
           ) : (

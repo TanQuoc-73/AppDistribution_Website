@@ -7,6 +7,8 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
+import { CreateVersionDto } from './dto/create-version.dto';
+import { UpdateVersionDto } from './dto/update-version.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -54,6 +56,54 @@ export class ProductsController {
   @ApiOperation({ summary: 'Xoá sản phẩm (admin only)' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.remove(id);
+  }
+
+  // ─── Version management ────────────────────────────────────────────────────
+
+  @Get(':slug/versions')
+  @ApiOperation({ summary: 'Danh sách phiên bản của sản phẩm' })
+  getVersions(@Param('slug') slug: string) {
+    return this.productsService.getVersionsBySlug(slug);
+  }
+
+  @Post(':id/versions')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('developer', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Thêm phiên bản mới (developer/admin)' })
+  createVersion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: any,
+    @Body() dto: CreateVersionDto,
+  ) {
+    return this.productsService.createVersion(id, user.id, dto);
+  }
+
+  @Patch(':id/versions/:versionId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('developer', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Cập nhật phiên bản (developer/admin)' })
+  updateVersion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('versionId', ParseUUIDPipe) versionId: string,
+    @CurrentUser() user: any,
+    @Body() dto: UpdateVersionDto,
+  ) {
+    return this.productsService.updateVersion(id, versionId, user.id, dto);
+  }
+
+  @Delete(':id/versions/:versionId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('developer', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Xoá phiên bản (developer/admin)' })
+  deleteVersion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('versionId', ParseUUIDPipe) versionId: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.productsService.deleteVersion(id, versionId, user.id);
   }
 }
 

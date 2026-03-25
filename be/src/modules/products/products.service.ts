@@ -1,8 +1,10 @@
-﻿import { Injectable, NotFoundException } from '@nestjs/common';
+﻿import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
+import { CreateVersionDto } from './dto/create-version.dto';
+import { UpdateVersionDto } from './dto/update-version.dto';
 import { PaginatedResult } from '../../common/types/pagination';
 
 @Injectable()
@@ -96,31 +98,170 @@ export class ProductsService {
   }
 
   async create(developerId: string, dto: CreateProductDto) {
-    const { categoryIds, tagIds, ...data } = dto;
-    return this.prisma.product.create({
-      data: {
-        ...data,
-        developerId,
-        slug: this.toSlug(data.name),
-        categories: categoryIds
-          ? { create: categoryIds.map((id) => ({ categoryId: id })) }
-          : undefined,
-        tags: tagIds
-          ? { create: tagIds.map((id) => ({ tagId: id })) }
-          : undefined,
-      },
+    const { categoryIds, tagIds, downloadUrl, versionString, fileSize, ...data } = dto;
+    return this.prisma.$transaction(async (tx) => {
+      const product = await tx.product.create({
+        data: {
+          ...data,
+          developerId,
+          slug: this.toSlug(data.name),
+          categories: categoryIds
+            ? { create: categoryIds.map((id) => ({ categoryId: id })) }
+            : undefined,
+          tags: tagIds
+            ? { create: tagIds.map((id) => ({ tagId: id })) }
+            : undefined,
+        },
+      });
+
+      // Auto-create initial version if download info provided
+      if (downloadUrl || versionString) {
+        await tx.productVersion.create({
+          data: {
+            productId: product.id,
+            version: versionString || '1.0.0',
+            downloadUrl: downloadUrl || null,
+            fileSize: fileSize ?? null,
+            isLatest: true,
+          },
+        });
+      }
+
+      return product;
     });
   }
 
   async update(id: string, dto: UpdateProductDto) {
     await this.findById(id);
-    const { categoryIds, tagIds, ...data } = dto;
-    return this.prisma.product.update({ where: { id }, data });
+    const { categoryIds, tagIds, downloadUrl, versionString, fileSize, ...data } = dto;
+    return this.prisma.$transaction(async (tx) => {
+      const product = await tx.product.update({ where: { id }, data });
+      if (categoryIds !== undefined) {
+        await tx.productCategory.deleteMany({ where: { productId: id } });
+        if (categoryIds.length > 0) {
+          await tx.productCategory.createMany({
+            data: categoryIds.map((categoryId) => ({ productId: id, categoryId })),
+          });
+        }
+      }
+      if (tagIds !== undefined) {
+        await tx.productTag.deleteMany({ where: { productId: id } });
+        if (tagIds.length > 0) {
+          await tx.productTag.createMany({
+            data: tagIds.map((tagId) => ({ productId: id, tagId })),
+          });
+        }
+      }
+
+      // Inline version update: update latest version or create new one
+      if (downloadUrl !== undefined || versionString !== undefined || fileSize !== undefined) {
+        const latestVersion = await tx.productVersion.findFirst({
+          where: { productId: id, isLatest: true },
+        });
+        if (latestVersion) {
+          await tx.productVersion.update({
+            where: { id: latestVersion.id },
+            data: {
+              ...(downloadUrl !== undefined && { downloadUrl }),
+              ...(versionString !== undefined && { version: versionString }),
+              ...(fileSize !== undefined && { fileSize }),
+            },
+          });
+        } else {
+          await tx.productVersion.create({
+            data: {
+              productId: id,
+              version: versionString || '1.0.0',
+              downloadUrl: downloadUrl || null,
+              fileSize: fileSize ?? null,
+              isLatest: true,
+            },
+          });
+        }
+      }
+
+      return product;
+    });
   }
 
   async remove(id: string) {
     await this.findById(id);
     return this.prisma.product.delete({ where: { id } });
+  }
+
+  // ─── Version management ─────────────────────────────────────────────────────
+
+  async getVersions(productId: string) {
+    const product = await this.prisma.product.findUnique({ where: { id: productId }, select: { id: true } });
+    if (!product) throw new NotFoundException('Product not found');
+    return this.prisma.productVersion.findMany({
+      where: { productId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getVersionsBySlug(slug: string) {
+    const product = await this.prisma.product.findUnique({ where: { slug }, select: { id: true } });
+    if (!product) throw new NotFoundException('Product not found');
+    return this.getVersions(product.id);
+  }
+
+  async createVersion(productId: string, userId: string, dto: CreateVersionDto) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      include: { developer: true },
+    });
+    if (!product) throw new NotFoundException('Product not found');
+    if (product.developer?.user_id !== userId) {
+      // Check if admin
+      const profile = await this.prisma.profile.findUnique({ where: { id: userId }, select: { role: true } });
+      if (profile?.role !== 'admin') throw new ForbiddenException('You do not own this product');
+    }
+    // Check duplicate version string
+    const existing = await this.prisma.productVersion.findUnique({
+      where: { productId_version: { productId, version: dto.version } },
+    });
+    if (existing) throw new BadRequestException(`Version ${dto.version} already exists`);
+
+    return this.prisma.$transaction(async (tx) => {
+      if (dto.isLatest) {
+        await tx.productVersion.updateMany({ where: { productId }, data: { isLatest: false } });
+      }
+      return tx.productVersion.create({ data: { productId, ...dto } });
+    });
+  }
+
+  async updateVersion(productId: string, versionId: string, userId: string, dto: UpdateVersionDto) {
+    const version = await this.prisma.productVersion.findFirst({ where: { id: versionId, productId } });
+    if (!version) throw new NotFoundException('Version not found');
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      include: { developer: true },
+    });
+    if (product?.developer?.user_id !== userId) {
+      const profile = await this.prisma.profile.findUnique({ where: { id: userId }, select: { role: true } });
+      if (profile?.role !== 'admin') throw new ForbiddenException('You do not own this product');
+    }
+    return this.prisma.$transaction(async (tx) => {
+      if (dto.isLatest) {
+        await tx.productVersion.updateMany({ where: { productId }, data: { isLatest: false } });
+      }
+      return tx.productVersion.update({ where: { id: versionId }, data: dto });
+    });
+  }
+
+  async deleteVersion(productId: string, versionId: string, userId: string) {
+    const version = await this.prisma.productVersion.findFirst({ where: { id: versionId, productId } });
+    if (!version) throw new NotFoundException('Version not found');
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      include: { developer: true },
+    });
+    if (product?.developer?.user_id !== userId) {
+      const profile = await this.prisma.profile.findUnique({ where: { id: userId }, select: { role: true } });
+      if (profile?.role !== 'admin') throw new ForbiddenException('You do not own this product');
+    }
+    return this.prisma.productVersion.delete({ where: { id: versionId } });
   }
 
   private buildOrderBy(sort?: string) {

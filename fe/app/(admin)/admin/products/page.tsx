@@ -21,6 +21,11 @@ const emptyForm = {
   discountPercent: 0,
   isFree: false,
   ageRating: 'everyone',
+  developerId: '',
+  releaseDate: '',
+  downloadUrl: '',
+  versionString: '1.0.0',
+  fileSize: '',
 };
 
 export default function AdminProductsPage() {
@@ -31,6 +36,8 @@ export default function AdminProductsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [developers, setDevelopers] = useState<{ id: string; name: string }[]>([]);
 
   const fetchProducts = (p: number) => {
     setLoading(true);
@@ -43,9 +50,16 @@ export default function AdminProductsPage() {
 
   useEffect(() => { fetchProducts(page); }, [page]);
 
+  useEffect(() => {
+    adminApi.getDevelopers()
+      .then((res: any) => setDevelopers(res.data?.data ?? res.data ?? []))
+      .catch(() => {});
+  }, []);
+
   function openCreate() {
     setEditingId(null);
     setForm(emptyForm);
+    setFormError(null);
     setModalOpen(true);
   }
 
@@ -61,12 +75,19 @@ export default function AdminProductsPage() {
       discountPercent: Number(p.discountPercent),
       isFree: p.isFree,
       ageRating: p.ageRating ?? 'everyone',
+      developerId: p.developerId ?? '',
+      releaseDate: p.releaseDate ? p.releaseDate.slice(0, 10) : '',
+      downloadUrl: (p as any).versions?.[0]?.downloadUrl ?? '',
+      versionString: (p as any).versions?.[0]?.version ?? '',
+      fileSize: (p as any).versions?.[0]?.fileSize?.toString() ?? '',
     });
+    setFormError(null);
     setModalOpen(true);
   }
 
   async function handleSave() {
     setSaving(true);
+    setFormError(null);
     try {
       if (editingId) {
         await adminApi.updateProduct(editingId, {
@@ -79,7 +100,12 @@ export default function AdminProductsPage() {
           discountPercent: form.discountPercent,
           isFree: form.isFree,
           ageRating: form.ageRating,
-        });
+          developerId: form.developerId || undefined,
+          releaseDate: form.releaseDate || undefined,
+          downloadUrl: form.downloadUrl || undefined,
+          versionString: form.versionString || undefined,
+          fileSize: form.fileSize ? Number(form.fileSize) : undefined,
+        } as any);
       } else {
         await adminApi.createProduct({
           name: form.name,
@@ -91,11 +117,17 @@ export default function AdminProductsPage() {
           discountPercent: form.discountPercent,
           isFree: form.isFree,
           ageRating: form.ageRating,
-        });
+          developerId: form.developerId || undefined,
+          releaseDate: form.releaseDate || undefined,
+          downloadUrl: form.downloadUrl || undefined,
+          versionString: form.versionString || undefined,
+          fileSize: form.fileSize ? Number(form.fileSize) : undefined,
+        } as any);
       }
       setModalOpen(false);
       fetchProducts(page);
-    } catch {
+    } catch (err: any) {
+      setFormError(err?.message ?? 'Có lỗi xảy ra, vui lòng thử lại.');
     } finally {
       setSaving(false);
     }
@@ -356,8 +388,33 @@ export default function AdminProductsPage() {
                 <option value="everyone">Everyone</option>
                 <option value="teen">Teen</option>
                 <option value="mature">Mature</option>
-                <option value="adults_only">Adults Only</option>
+                <option value="adult">Adult</option>
               </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="mb-1 block text-sm text-stone-400">Developer</label>
+              <select
+                value={form.developerId}
+                onChange={(e) => set('developerId', e.target.value)}
+                className="w-full rounded-lg border border-stone-700 bg-stone-800/60 px-3 py-2 text-sm text-stone-100 outline-none focus:border-amber-700"
+              >
+                <option value="">— Chọn developer —</option>
+                {developers.map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm text-stone-400">Ngày phát hành</label>
+              <input
+                type="date"
+                value={form.releaseDate}
+                onChange={(e) => set('releaseDate', e.target.value)}
+                className="w-full rounded-lg border border-stone-700 bg-stone-800/60 px-3 py-2 text-sm text-stone-100 outline-none focus:border-amber-700"
+              />
             </div>
           </div>
 
@@ -370,6 +427,51 @@ export default function AdminProductsPage() {
             />
             Miễn phí
           </label>
+
+          {/* Download / Version */}
+          <div className="border-t border-stone-700 pt-4">
+            <h3 className="mb-3 text-sm font-semibold text-stone-300">Link tải & Phiên bản</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-sm text-stone-400">URL tải về</label>
+                <input
+                  value={form.downloadUrl}
+                  onChange={(e) => set('downloadUrl', e.target.value)}
+                  placeholder="https://drive.google.com/file/d/.../view"
+                  className="w-full rounded-lg border border-stone-700 bg-stone-800/60 px-3 py-2 text-sm text-stone-100 outline-none focus:border-amber-700"
+                />
+                <p className="mt-1 text-xs text-stone-500">Link Google Drive sẽ tự động convert sang direct download</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-1 block text-sm text-stone-400">Số phiên bản</label>
+                  <input
+                    value={form.versionString}
+                    onChange={(e) => set('versionString', e.target.value)}
+                    placeholder="1.0.0"
+                    className="w-full rounded-lg border border-stone-700 bg-stone-800/60 px-3 py-2 text-sm text-stone-100 outline-none focus:border-amber-700"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm text-stone-400">Kích thước file (bytes)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.fileSize}
+                    onChange={(e) => set('fileSize', e.target.value)}
+                    placeholder="52428800"
+                    className="w-full rounded-lg border border-stone-700 bg-stone-800/60 px-3 py-2 text-sm text-stone-100 outline-none focus:border-amber-700"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {formError && (
+            <p className="rounded-lg border border-red-800 bg-red-900/40 px-3 py-2 text-sm text-red-300">
+              {formError}
+            </p>
+          )}
 
           <div className="flex justify-end gap-3 pt-2">
             <button

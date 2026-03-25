@@ -2,7 +2,7 @@
 export type UserRole = 'user' | 'developer' | 'admin';
 export type ProductStatus = 'draft' | 'pending_review' | 'active' | 'inactive' | 'rejected';
 export type OrderStatus = 'pending' | 'completed' | 'cancelled' | 'refunded';
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+export type PaymentStatus = 'unpaid' | 'paid' | 'failed' | 'refunded';
 export type PaymentMethod = 'credit_card' | 'paypal' | 'wallet' | 'free';
 export type MediaType = 'image' | 'video' | 'screenshot';
 export type RefundStatus = 'pending' | 'approved' | 'rejected';
@@ -64,9 +64,10 @@ export interface ProductMedia {
 
 export interface ProductVersion {
   id: string;
-  versionNumber: string;
-  releaseNotes: string | null;
-  downloadUrl: string;
+  productId: string;
+  version: string;
+  changelog: string | null;
+  downloadUrl: string | null;
   fileSize: number | null;
   isLatest: boolean;
   createdAt: string;
@@ -180,7 +181,8 @@ export interface NewsArticle {
   title: string;
   slug: string;
   content: string;
-  thumbnailUrl: string | null;
+  cover_image: string | null;
+  excerpt: string | null;
   isPublished: boolean;
   publishedAt: string | null;
   createdAt: string;
@@ -233,4 +235,50 @@ export interface UpdateProfilePayload {
   displayName?: string;
   avatarUrl?: string;
   bio?: string;
+}
+
+// ─── Payment ─────────────────────────────────────────────────────────────────
+
+export type MockPaymentMethod = 'bank_transfer' | 'credit_card' | 'paypal_mock' | 'wallet';
+
+export interface MockPayPayload {
+  orderId: string;
+  method: MockPaymentMethod;
+}
+
+export interface MockPayResult {
+  success: boolean;
+  transactionId: string;
+  orderId: string;
+  paidAt: string;
+}
+
+export interface Payment {
+  id: string;
+  orderId: string;
+  gateway: string;
+  amount: string;
+  currency: string;
+  status: PaymentStatus;
+  transactionId: string | null;
+  paidAt: string | null;
+  createdAt: string;
+}
+
+// ─── Download ─────────────────────────────────────────────────────────────────
+
+export interface DownloadResult {
+  downloadUrl: string;
+  version: string;
+  changelog: string | null;
+  fileSize: number | null;
+  productName: string;
+}
+
+// ─── Library entry (product + acquisition metadata) ──────────────────────────
+
+export interface LibraryEntry extends Product {
+  acquiredAt: string;
+  licenseKey: string | null;
+  latestVersion: ProductVersion | null;
 }

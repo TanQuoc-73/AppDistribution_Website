@@ -74,7 +74,7 @@ export class AdminController {
   @Post('products')
   @ApiOperation({ summary: 'Create product' })
   createProduct(
-    @Body() body: { name: string; slug: string; shortDescription?: string; description?: string; thumbnailUrl?: string; price?: number; discountPercent?: number; isFree?: boolean; ageRating?: string; developerId?: string },
+    @Body() body: { name: string; slug: string; shortDescription?: string; description?: string; thumbnailUrl?: string; price?: number; discountPercent?: number; isFree?: boolean; ageRating?: string; developerId?: string; releaseDate?: string },
   ) {
     return this.adminService.createProduct(body);
   }
@@ -83,7 +83,7 @@ export class AdminController {
   @ApiOperation({ summary: 'Update product' })
   updateProduct(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() body: { name?: string; slug?: string; shortDescription?: string; description?: string; thumbnailUrl?: string; price?: number; discountPercent?: number; isFree?: boolean; is_active?: boolean; is_featured?: boolean; ageRating?: string },
+    @Body() body: { name?: string; slug?: string; shortDescription?: string; description?: string; thumbnailUrl?: string; price?: number; discountPercent?: number; isFree?: boolean; is_active?: boolean; is_featured?: boolean; ageRating?: string; developerId?: string; releaseDate?: string },
   ) {
     return this.adminService.updateProduct(id, body);
   }
@@ -124,5 +124,67 @@ export class AdminController {
     @Body('status') status: OrderStatus,
   ) {
     return this.adminService.updateOrderStatus(id, status);
+  }
+
+  /* ─── News ─── */
+
+  @Get('news')
+  @ApiOperation({ summary: 'List all news (admin)' })
+  getNews(@Query('page') page = 1, @Query('limit') limit = 20) {
+    return this.adminService.findAllNewsAdmin(+page, +limit);
+  }
+
+  @Post('news')
+  @ApiOperation({ summary: 'Create news article' })
+  createNews(
+    @Body() body: { title: string; slug: string; content: string; excerpt?: string; cover_image?: string; isPublished?: boolean },
+  ) {
+    return this.adminService.createNews(body);
+  }
+
+  @Patch('news/:id')
+  @ApiOperation({ summary: 'Update news article' })
+  updateNews(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { title?: string; slug?: string; content?: string; excerpt?: string; cover_image?: string; isPublished?: boolean },
+  ) {
+    return this.adminService.updateNews(id, body);
+  }
+
+  @Delete('news/:id')
+  @ApiOperation({ summary: 'Delete news article' })
+  deleteNews(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminService.deleteNews(id);
+  }
+
+  /* ─── Banners ─── */
+
+  @Get('banners')
+  @ApiOperation({ summary: 'List all banners (admin)' })
+  getBanners(@Query('page') page = 1, @Query('limit') limit = 20) {
+    return this.adminService.findAllBanners(+page, +limit);
+  }
+
+  @Post('banners')
+  @ApiOperation({ summary: 'Create banner' })
+  createBanner(
+    @Body() body: { title: string; imageUrl: string; linkUrl?: string; sortOrder?: number; isActive?: boolean },
+  ) {
+    return this.adminService.createBanner(body);
+  }
+
+  @Patch('banners/:id')
+  @ApiOperation({ summary: 'Update banner' })
+  updateBanner(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { title?: string; imageUrl?: string; linkUrl?: string; sortOrder?: number; isActive?: boolean },
+  ) {
+    return this.adminService.updateBanner(id, body);
+  }
+
+  @Delete('banners/:id')
+  @ApiOperation({ summary: 'Delete banner' })
+  deleteBanner(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminService.deleteBanner(id);
   }
 }

@@ -24,6 +24,7 @@ export default function AdminUsersPage() {
   const [editUser, setEditUser] = useState<Profile | null>(null);
   const [editForm, setEditForm] = useState({ username: '', displayName: '', bio: '', role: 'user' as string });
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const fetchUsers = (p: number) => {
     setLoading(true);
@@ -44,11 +45,13 @@ export default function AdminUsersPage() {
       bio: u.bio ?? '',
       role: u.role,
     });
+    setFormError(null);
   }
 
   async function handleSaveUser() {
     if (!editUser) return;
     setSaving(true);
+    setFormError(null);
     try {
       await adminApi.updateUser(editUser.id, {
         username: editForm.username,
@@ -58,7 +61,8 @@ export default function AdminUsersPage() {
       });
       setEditUser(null);
       fetchUsers(page);
-    } catch {
+    } catch (err: any) {
+      setFormError(err?.message ?? 'Có lỗi xảy ra, vui lòng thử lại.');
     } finally {
       setSaving(false);
     }
@@ -244,6 +248,11 @@ export default function AdminUsersPage() {
               <option value="admin">admin</option>
             </select>
           </div>
+          {formError && (
+            <p className="rounded-lg border border-red-800 bg-red-900/40 px-3 py-2 text-sm text-red-300">
+              {formError}
+            </p>
+          )}
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"

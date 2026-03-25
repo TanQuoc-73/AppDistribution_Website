@@ -1,8 +1,22 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ordersApi } from '@/lib/api/endpoints';
-import type { CreateOrderPayload } from '@/types';
+import { ordersApi, libraryApi } from '@/lib/api/endpoints';
+import { useAuthStore } from '@/stores/useAuthStore';
+import type { CreateOrderPayload, Product } from '@/types';
+
+export function useLibrary() {
+  const user = useAuthStore((s) => s.user);
+  return useQuery({
+    queryKey: ['library'],
+    queryFn: async () => {
+      const res = await libraryApi.getAll();
+      return (res.data.data ?? []) as Product[];
+    },
+    enabled: !!user,
+    staleTime: 60 * 1000,
+  });
+}
 
 export function useMyOrders() {
   return useQuery({
@@ -28,12 +42,13 @@ export function useOrder(id: string) {
 export function useCreateOrder() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: CreateOrderPayload) =>
-      ordersApi.create(payload).then((res) => res.data.data),
+    mutationFn: async (payload: CreateOrderPayload) => {
+      const res = await ordersApi.create(payload);
+      return (res.data?.data ?? res.data) as any;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      queryClient.invalidateQueries({ queryKey: ['library'] });
     },
   });
 }

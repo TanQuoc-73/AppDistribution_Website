@@ -74,6 +74,11 @@ export default function LoginPage() {
                 />
               </div>
 
+              <div className="flex justify-between items-center"> 
+                <div />
+                <Link href="/forgot-password" className="text-sm link-accent hover:opacity-95">Forgot password?</Link>
+              </div>
+
               {error && <p className="text-sm text-rose-400">{error}</p>}
 
               <button

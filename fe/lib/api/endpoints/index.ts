@@ -15,6 +15,12 @@ import type {
   Banner,
   Category,
   Tag,
+  MockPayPayload,
+  MockPayResult,
+  Payment,
+  DownloadResult,
+  LibraryEntry,
+  ProductVersion,
 } from '@/types';
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -98,7 +104,13 @@ export const profilesApi = {
 
 export const libraryApi = {
   getAll: () =>
-    api.get<ApiResponse<Product[]>>('/library'),
+    api.get<ApiResponse<LibraryEntry[]>>('/library'),
+
+  checkOwnership: (productId: string) =>
+    api.get<ApiResponse<{ owned: boolean }>>(`/library/check/${productId}`),
+
+  claimFree: (productId: string) =>
+    api.post<ApiResponse<null>>(`/library/claim/${productId}`),
 };
 
 // ─── Reviews ──────────────────────────────────────────────────────────────────
@@ -133,6 +145,78 @@ export const wishlistsApi = {
     api.delete<ApiResponse<null>>(`/wishlists/${productId}`),
 };
 
+// ─── Downloads ────────────────────────────────────────────────────────────────
+
+export const downloadsApi = {
+  download: (productId: string, versionId?: string) =>
+    api.post<ApiResponse<DownloadResult>>(
+      `/downloads/${productId}${versionId ? `?versionId=${versionId}` : ''}`,
+    ),
+
+  getHistory: () =>
+    api.get<ApiResponse<any[]>>('/downloads/history'),
+};
+
+// ─── Payments ─────────────────────────────────────────────────────────────────
+
+export const paymentsApi = {
+  mockPay: (payload: MockPayPayload) =>
+    api.post<ApiResponse<MockPayResult>>('/payments/mock', payload),
+
+  getByOrder: (orderId: string) =>
+    api.get<ApiResponse<Payment[]>>(`/payments/order/${orderId}`),
+};
+
+// ─── Product versions ─────────────────────────────────────────────────────────
+
+export const versionsApi = {
+  getBySlug: (slug: string) =>
+    api.get<ApiResponse<ProductVersion[]>>(`/products/${slug}/versions`),
+
+  create: (productId: string, data: { version: string; changelog?: string; downloadUrl?: string; fileSize?: number; isLatest?: boolean }) =>
+    api.post<ApiResponse<ProductVersion>>(`/products/${productId}/versions`, data),
+
+  update: (productId: string, versionId: string, data: Partial<{ version: string; changelog: string; downloadUrl: string; fileSize: number; isLatest: boolean }>) =>
+    api.patch<ApiResponse<ProductVersion>>(`/products/${productId}/versions/${versionId}`, data),
+
+  remove: (productId: string, versionId: string) =>
+    api.delete<ApiResponse<null>>(`/products/${productId}/versions/${versionId}`),
+};
+
+// ─── Developer products ───────────────────────────────────────────────────────
+
+export const developerApi = {
+  getMyProfile: () =>
+    api.get<ApiResponse<{ id: string; name: string; slug: string; description: string | null; logoUrl: string | null; isVerified: boolean }>>('/developers/me'),
+
+  getMyProducts: () =>
+    api.get<ApiResponse<Product[]>>('/developers/me/products'),
+
+  getMyStats: () =>
+    api.get<ApiResponse<{ totalProducts: number; totalDownloads: number }>>('/developers/me/stats'),
+
+  updateMyProfile: (data: { name?: string; description?: string; logoUrl?: string; website?: string; country?: string }) =>
+    api.patch<ApiResponse<unknown>>('/developers/me', data),
+
+  createProduct: (data: {
+    name: string;
+    shortDescription?: string;
+    description?: string;
+    thumbnailUrl?: string;
+    price: number;
+    discountPercent?: number;
+    isFree?: boolean;
+    ageRating?: string;
+    releaseDate?: string;
+    categoryIds?: string[];
+    tagIds?: string[];
+  }) =>
+    api.post<ApiResponse<Product>>('/products', data),
+
+  updateProduct: (id: string, data: Record<string, unknown>) =>
+    api.patch<ApiResponse<Product>>(`/products/${id}`, data),
+};
+
 // ─── Notifications ────────────────────────────────────────────────────────────
 
 export const notificationsApi = {
@@ -151,6 +235,14 @@ export const notificationsApi = {
 export const categoriesApi = {
   getAll: () =>
     api.get<ApiResponse<Category[]>>('/categories'),
+  getFlat: () =>
+    api.get<ApiResponse<Category[]>>('/categories/flat'),
+  create: (data: { name: string; slug: string; description?: string; iconUrl?: string; parentId?: string; sort_order?: number }) =>
+    api.post<ApiResponse<Category>>('/categories', data),
+  update: (id: string, data: Partial<{ name: string; slug: string; description: string; iconUrl: string; parentId: string; sort_order: number }>) =>
+    api.patch<ApiResponse<Category>>(`/categories/${id}`, data),
+  remove: (id: string) =>
+    api.delete(`/categories/${id}`),
 };
 
 // ─── Tags ─────────────────────────────────────────────────────────────────────
@@ -198,9 +290,11 @@ export const adminApi = {
   // Products
   getProducts: (params?: { page?: number; limit?: number }) =>
     api.get<PaginatedResponse<Product>>('/admin/products', { params }),
-  createProduct: (data: { name: string; slug: string; shortDescription?: string; description?: string; thumbnailUrl?: string; price?: number; discountPercent?: number; isFree?: boolean; ageRating?: string; developerId?: string }) =>
+  getDevelopers: () =>
+    api.get<{ id: string; name: string; slug: string; logoUrl: string | null }[]>('/developers'),
+  createProduct: (data: { name: string; slug: string; shortDescription?: string; description?: string; thumbnailUrl?: string; price?: number; discountPercent?: number; isFree?: boolean; ageRating?: string; developerId?: string; releaseDate?: string }) =>
     api.post<ApiResponse<Product>>('/admin/products', data),
-  updateProduct: (id: string, data: { name?: string; slug?: string; shortDescription?: string; description?: string; thumbnailUrl?: string; price?: number; discountPercent?: number; isFree?: boolean; is_active?: boolean; is_featured?: boolean; ageRating?: string }) =>
+  updateProduct: (id: string, data: { name?: string; slug?: string; shortDescription?: string; description?: string; thumbnailUrl?: string; price?: number; discountPercent?: number; isFree?: boolean; is_active?: boolean; is_featured?: boolean; ageRating?: string; developerId?: string; releaseDate?: string }) =>
     api.patch<ApiResponse<Product>>(`/admin/products/${id}`, data),
   updateProductStatus: (id: string, isActive: boolean) =>
     api.patch<ApiResponse<Product>>(`/admin/products/${id}/status`, { isActive }),
@@ -214,4 +308,24 @@ export const adminApi = {
     api.get<ApiResponse<Order>>(`/admin/orders/${id}`),
   updateOrderStatus: (id: string, status: string) =>
     api.patch<ApiResponse<Order>>(`/admin/orders/${id}/status`, { status }),
+
+  // News
+  getNews: (params?: { page?: number; limit?: number }) =>
+    api.get('/admin/news', { params }),
+  createNews: (data: { title: string; slug: string; content: string; excerpt?: string; cover_image?: string; isPublished?: boolean }) =>
+    api.post('/admin/news', data),
+  updateNews: (id: string, data: { title?: string; slug?: string; content?: string; excerpt?: string; cover_image?: string; isPublished?: boolean }) =>
+    api.patch(`/admin/news/${id}`, data),
+  deleteNews: (id: string) =>
+    api.delete(`/admin/news/${id}`),
+
+  // Banners
+  getBanners: (params?: { page?: number; limit?: number }) =>
+    api.get('/admin/banners', { params }),
+  createBanner: (data: { title: string; imageUrl: string; linkUrl?: string; sortOrder?: number; isActive?: boolean }) =>
+    api.post('/admin/banners', data),
+  updateBanner: (id: string, data: { title?: string; imageUrl?: string; linkUrl?: string; sortOrder?: number; isActive?: boolean }) =>
+    api.patch(`/admin/banners/${id}`, data),
+  deleteBanner: (id: string) =>
+    api.delete(`/admin/banners/${id}`),
 };

@@ -1,44 +1,29 @@
 import Link from 'next/link';
-import { ChevronRight, Newspaper, Palette, Trophy, Rocket } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import Image from 'next/image';
+import { ChevronRight, Newspaper } from 'lucide-react';
+import type { NewsArticle } from '@/types';
 
-const ARTICLES: { id: number; category: string; date: string; title: string; excerpt: string; icon: LucideIcon; color: string; accent: string }[] = [
-  {
-    id: 1,
-    category: 'Update',
-    date: 'Oct 15, 2025',
-    title: 'Aurora Creative Suite 5.0 Launched with AI Features',
-    excerpt:
-      'The flagship design platform ships its biggest update yet, bringing AI-powered background removal, smart selection, and generative fill tools.',
-    icon: Palette,
-    color: 'from-amber-950/80 to-stone-900',
-    accent: '#d97706',
-  },
-  {
-    id: 2,
-    category: 'Community',
-    date: 'Oct 12, 2025',
-    title: 'Autumn Dev Jam 2025 — Winners Announced',
-    excerpt:
-      'Over 300 developers participated in our seasonal game jam. Meet the top teams and their incredible creations built in just 72 hours.',
-    icon: Trophy,
-    color: 'from-orange-950/80 to-stone-900',
-    accent: '#ea580c',
-  },
-  {
-    id: 3,
-    category: 'Platform',
-    date: 'Oct 9, 2025',
-    title: 'New Developer Portal & Revenue Dashboard',
-    excerpt:
-      'We rolled out a completely redesigned developer portal with real-time analytics, A/B testing tools, and improved payout management.',
-    icon: Rocket,
-    color: 'from-stone-800/80 to-stone-900',
-    accent: '#b45309',
-  },
-];
+function formatDate(dateStr: string | null) {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
 
-export default function NewsSection() {
+function getExcerpt(content: string, maxLength = 120) {
+  const text = content.replace(/<[^>]+>/g, '');
+  return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
+}
+
+interface NewsSectionProps {
+  articles: NewsArticle[];
+}
+
+export default function NewsSection({ articles = [] }: NewsSectionProps) {
+  if (articles.length === 0) return null;
+
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
@@ -61,55 +46,43 @@ export default function NewsSection() {
 
         {/* Articles grid */}
         <div className="grid gap-5 md:grid-cols-3">
-          {ARTICLES.map((article) => (
+          {articles.map((article) => (
             <Link
               key={article.id}
-              href="/news"
+              href={`/news/${article.slug}`}
               className="group flex flex-col overflow-hidden rounded-2xl border border-stone-800/80 transition-all duration-300 hover:-translate-y-1 hover:border-amber-800/40 hover:shadow-xl hover:shadow-amber-900/10"
               style={{ background: 'linear-gradient(160deg,#1a0f07,#110c04)' }}
             >
-              {/* Illustration */}
-              <div
-                className={`flex h-40 items-center justify-center bg-gradient-to-br ${article.color} relative overflow-hidden`}
-              >
-                <span className="text-5xl transition-transform duration-500 group-hover:scale-110">
-                  <article.icon className="h-12 w-12" style={{ color: article.accent }} />
-                </span>
-                {/* Decorative lines */}
-                <div className="absolute inset-0 opacity-10"
-                  style={{
-                    backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,0.1) 1px,transparent 1px),linear-gradient(-45deg,rgba(255,255,255,0.1) 1px,transparent 1px)',
-                    backgroundSize: '20px 20px',
-                  }}
-                />
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#1a0f07]"
-                />
+              {/* Thumbnail */}
+              <div className="relative h-40 w-full overflow-hidden bg-stone-800">
+                {article.cover_image ? (
+                  <Image
+                    src={article.cover_image}
+                    alt={article.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-amber-950/60 to-stone-900">
+                    <Newspaper className="h-12 w-12 text-amber-800/50" />
+                  </div>
+                )}
               </div>
 
               {/* Body */}
               <div className="flex flex-1 flex-col gap-2 p-5">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="rounded text-[10px] font-bold uppercase px-2 py-0.5"
-                    style={{ background: `${article.accent}22`, color: article.accent }}
-                  >
-                    {article.category}
-                  </span>
-                  <span className="text-xs text-stone-600">{article.date}</span>
-                </div>
-                <h3 className="text-sm font-bold leading-snug text-stone-100 transition group-hover:text-amber-300">
+                <span className="text-xs text-stone-500">
+                  {formatDate(article.publishedAt ?? article.createdAt)}
+                </span>
+                <h3 className="line-clamp-2 text-sm font-bold leading-snug text-stone-100 transition group-hover:text-amber-300">
                   {article.title}
                 </h3>
                 <p className="line-clamp-3 text-xs leading-relaxed text-stone-500">
-                  {article.excerpt}
+                  {article.excerpt || getExcerpt(article.content ?? '')}
                 </p>
                 <div className="mt-auto pt-3">
-                  <span
-                    className="inline-flex items-center gap-1 text-xs font-medium"
-                    style={{ color: article.accent }}
-                  >
-                    Read more
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 transition group-hover:text-amber-400">
+                    Đọc tiếp
                     <ChevronRight className="h-3.5 w-3.5" />
                   </span>
                 </div>

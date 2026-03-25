@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Search, ShoppingCart, Leaf } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCartStore } from '@/stores/useCartStore';
@@ -15,6 +16,21 @@ export default function Header() {
   const router = useRouter();
   const searchRef = useRef<HTMLInputElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // Resolve avatar URL: prefer DB profile, fallback to Supabase OAuth metadata (Google)
+  const avatarUrl: string | null =
+    profile?.avatarUrl ||
+    (user?.user_metadata?.avatar_url as string | undefined) ||
+    null;
+
+  // Resolve display name
+  const displayName: string =
+    profile?.displayName ||
+    profile?.username ||
+    (user?.user_metadata?.full_name as string | undefined) ||
+    (user?.user_metadata?.name as string | undefined) ||
+    user?.email?.split('@')[0] ||
+    'U';
 
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,23 +94,42 @@ export default function Header() {
             <Search className="h-5 w-5" />
           </button>
 
+          {/* Cart icon — always visible */}
+          <Link href={user ? '/cart' : '/login'} data-cart-icon className="relative text-sm text-stone-400 transition hover:text-amber-300">
+            <ShoppingCart className="h-5 w-5" />
+            {user && cartCount > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
+          </Link>
+
           {user ? (
             <>
               <Link href="/library" className="hidden text-sm text-stone-400 transition hover:text-amber-300 sm:block">Library</Link>
-              <Link href="/cart" className="relative text-sm text-stone-400 transition hover:text-amber-300">
-                <ShoppingCart className="h-5 w-5" />
-                {cartCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
-                    {cartCount}
-                  </span>
-                )}
+
+              {/* Avatar + display name */}
+              <Link href="/profile" className="flex items-center gap-2 transition hover:opacity-80">
+                <span className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full ring-1 ring-amber-700/40">
+                  {avatarUrl ? (
+                    <Image
+                      src={avatarUrl}
+                      alt={displayName}
+                      fill
+                      className="object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center bg-amber-600/20 text-sm font-bold text-amber-400">
+                      {displayName[0].toUpperCase()}
+                    </span>
+                  )}
+                </span>
+                <span className="hidden max-w-[120px] truncate text-sm text-stone-300 sm:block">
+                  {displayName}
+                </span>
               </Link>
-              <Link
-                href="/profile"
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-600/20 text-sm font-bold text-amber-400 ring-1 ring-amber-700/40 transition hover:bg-amber-600/30"
-              >
-                {(profile?.username ?? 'U')[0].toUpperCase()}
-              </Link>
+
               <button onClick={handleSignOut} className="hidden text-xs text-stone-500 transition hover:text-stone-300 sm:block">
                 Sign out
               </button>
@@ -128,3 +163,5 @@ export default function Header() {
     </header>
   );
 }
+
+

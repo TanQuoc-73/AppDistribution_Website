@@ -1,17 +1,20 @@
 import Link from 'next/link';
-import { bannersApi, productsApi, categoriesApi } from '@/lib/api/endpoints';
+import { bannersApi, productsApi, categoriesApi, newsApi } from '@/lib/api/endpoints';
 import ProductGrid from '@/components/product/ProductGrid';
+import NewsSection from '@/components/home/NewsSection';
 
 export default async function HomePage() {
-  const [bannersRes, featuredRes, categoriesRes] = await Promise.allSettled([
+  const [bannersRes, featuredRes, categoriesRes, newsRes] = await Promise.allSettled([
     bannersApi.getActive(),
     productsApi.getAll({ sort: 'popular', limit: 8 }),
     categoriesApi.getAll(),
+    newsApi.getAll({ limit: 3 }),
   ]);
 
   const banners = bannersRes.status === 'fulfilled' ? bannersRes.value.data.data : [];
   const featured = featuredRes.status === 'fulfilled' ? featuredRes.value.data.data : [];
   const categories = categoriesRes.status === 'fulfilled' ? categoriesRes.value.data.data : [];
+  const news = newsRes.status === 'fulfilled' ? newsRes.value.data.data : [];
 
   return (
     <div>
@@ -64,6 +67,9 @@ export default async function HomePage() {
           <ProductGrid products={featured} />
         </section>
       </div>
+
+      {/* News */}
+      <NewsSection articles={news} />
     </div>
   );
 }
