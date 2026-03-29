@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description>Sort dropdown on the store page</description>
    <name>dd_sort</name>
@@ -9,10 +9,14 @@
          <key>XPATH</key>
          <value>//select[contains(@class,'sort') or ancestor::*[contains(@class,'sort')]]</value>
       </entry>
-      <entry>
-         <key>CSS</key>
-         <value>select</value>
-      </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
+   <useRalativeImagePath>false</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//select[contains(@class,'sort') or ancestor::*[contains(@class,'sort')]]</value>
+   </webElementProperties>
 </WebElementEntity>

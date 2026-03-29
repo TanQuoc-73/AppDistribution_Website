@@ -8,6 +8,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import AddToCartButton from '@/components/product/AddToCartButton';
+import WishlistButton from '@/components/product/WishlistButton';
+import ReviewSection from '@/components/product/ReviewSection';
 import type { ProductVersion } from '@/types';
 
 interface Props {
@@ -205,6 +207,9 @@ export default function ProductDetailPage({ params }: Props) {
                 </div>
               </div>
             )}
+
+            {/* Reviews */}
+            <ReviewSection productId={product.id} />
           </div>
 
           {/* Right: purchase panel (sticky) */}
@@ -233,6 +238,9 @@ export default function ProductDetailPage({ params }: Props) {
               </div>
 
               <AddToCartButton productId={product.id} isFree={product.isFree} thumbnailUrl={product.thumbnailUrl} />
+              <div className="mt-2">
+                <WishlistButton productId={product.id} />
+              </div>
 
               <div className="mt-4 space-y-2 border-t border-amber-900/20 pt-4 text-xs text-amber-400/50">
                 <div className="flex items-center justify-between">

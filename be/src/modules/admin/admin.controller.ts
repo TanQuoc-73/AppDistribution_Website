@@ -1,9 +1,17 @@
-﻿import {
+import {
   Controller, Get, Post, Patch, Delete,
   Param, Query, Body, UseGuards, ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
+import { CouponsService } from '../coupons/coupons.service';
+import { RefundsService } from '../refunds/refunds.service';
+import { TagsService } from '../tags/tags.service';
+import { CreateCouponDto } from '../coupons/dto/create-coupon.dto';
+import { UpdateCouponDto } from '../coupons/dto/update-coupon.dto';
+import { ProcessRefundDto } from '../refunds/dto/process-refund.dto';
+import { CreateTagDto } from '../tags/dto/create-tag.dto';
+import { UpdateTagDto } from '../tags/dto/update-tag.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -15,7 +23,12 @@ import { UserRole, OrderStatus } from '@prisma/client';
 @Roles('admin')
 @ApiBearerAuth()
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly couponsService: CouponsService,
+    private readonly refundsService: RefundsService,
+    private readonly tagsService: TagsService,
+  ) {}
 
   /* ─── Dashboard ─── */
 
@@ -186,5 +199,71 @@ export class AdminController {
   @ApiOperation({ summary: 'Delete banner' })
   deleteBanner(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminService.deleteBanner(id);
+  }
+
+  /* ─── Coupons ─── */
+
+  @Get('coupons')
+  @ApiOperation({ summary: 'List all coupons' })
+  getCoupons(@Query('page') page = 1, @Query('limit') limit = 20) {
+    return this.couponsService.findAll(+page, +limit);
+  }
+
+  @Post('coupons')
+  @ApiOperation({ summary: 'Create coupon' })
+  createCoupon(@Body() dto: CreateCouponDto) {
+    return this.couponsService.create(dto);
+  }
+
+  @Patch('coupons/:id')
+  @ApiOperation({ summary: 'Update coupon' })
+  updateCoupon(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateCouponDto) {
+    return this.couponsService.update(id, dto);
+  }
+
+  @Delete('coupons/:id')
+  @ApiOperation({ summary: 'Delete coupon' })
+  deleteCoupon(@Param('id', ParseUUIDPipe) id: string) {
+    return this.couponsService.remove(id);
+  }
+
+  /* ─── Refunds ─── */
+
+  @Get('refunds')
+  @ApiOperation({ summary: 'List all refund requests' })
+  getRefunds(@Query('page') page = 1, @Query('limit') limit = 20) {
+    return this.refundsService.findAll(+page, +limit);
+  }
+
+  @Patch('refunds/:id/approve')
+  @ApiOperation({ summary: 'Approve a refund request' })
+  approveRefund(@Param('id', ParseUUIDPipe) id: string, @Body() dto: ProcessRefundDto) {
+    return this.refundsService.approve(id, dto);
+  }
+
+  @Patch('refunds/:id/reject')
+  @ApiOperation({ summary: 'Reject a refund request' })
+  rejectRefund(@Param('id', ParseUUIDPipe) id: string, @Body() dto: ProcessRefundDto) {
+    return this.refundsService.reject(id, dto);
+  }
+
+  /* ─── Tags ─── */
+
+  @Post('tags')
+  @ApiOperation({ summary: 'Create tag' })
+  createTag(@Body() dto: CreateTagDto) {
+    return this.tagsService.create(dto);
+  }
+
+  @Patch('tags/:id')
+  @ApiOperation({ summary: 'Update tag' })
+  updateTag(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTagDto) {
+    return this.tagsService.update(id, dto);
+  }
+
+  @Delete('tags/:id')
+  @ApiOperation({ summary: 'Delete tag' })
+  deleteTag(@Param('id', ParseUUIDPipe) id: string) {
+    return this.tagsService.remove(id);
   }
 }

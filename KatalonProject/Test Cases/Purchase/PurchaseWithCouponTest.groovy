@@ -13,7 +13,7 @@ WebUI.navigateToUrl(GlobalVariable.baseUrl + '/login')
 WebUI.maximizeWindow()
 
 WebUI.setText(findTestObject('LoginPage/txt_email'), GlobalVariable.validEmail)
-WebUI.setEncryptedText(findTestObject('LoginPage/txt_password'), GlobalVariable.validPassword)
+WebUI.setText(findTestObject('LoginPage/txt_password'), GlobalVariable.validPassword)
 WebUI.click(findTestObject('LoginPage/btn_signIn'))
 WebUI.waitForPageLoad(10)
 WebUI.delay(2)

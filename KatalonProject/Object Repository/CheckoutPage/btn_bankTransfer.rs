@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description>Bank Transfer payment method option</description>
    <name>btn_bankTransfer</name>
@@ -11,4 +11,12 @@
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
+   <useRalativeImagePath>false</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//div[contains(text(),'Bank Transfer') or contains(.//text(),'Bank Transfer')]</value>
+   </webElementProperties>
 </WebElementEntity>

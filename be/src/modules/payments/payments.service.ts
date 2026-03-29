@@ -12,20 +12,34 @@ export class PaymentsService {
    * Thanh toán giả lập: luôn thành công, cập nhật đơn hàng và thêm sản phẩm vào thư viện.
    */
   async mockPay(userId: string, orderId: string, method: MockPaymentMethod) {
+    // 1. Fetch order and check status
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: { orderItems: true },
     });
     if (!order) throw new NotFoundException('Order not found');
     if (order.user_id !== userId) throw new ForbiddenException('Not your order');
-    if (order.status === 'completed') throw new BadRequestException('Order already paid');
+    if (order.status === 'completed') {
+      // Idempotent: already paid, return success
+      return { success: true, transactionId: 'ALREADY_PAID', orderId };
+    }
     if (order.status === 'cancelled') throw new BadRequestException('Order has been cancelled');
+
+    // 2. Check for existing payment (idempotency)
+    const existingPayment = await this.prisma.payment.findFirst({
+      where: { orderId, status: 'paid' },
+    });
+    if (existingPayment) {
+      // Idempotent: already paid, return success
+      return { success: true, transactionId: existingPayment.transactionId, orderId };
+    }
 
     const transactionId = `MOCK-${randomUUID().split('-')[0].toUpperCase()}`;
     const now = new Date();
 
-    return this.prisma.$transaction(async (tx) => {
-      // 1. Record payment
+    // 3. Transaction: create payment, update order, grant library
+    await this.prisma.$transaction(async (tx) => {
+      // Record payment (if not exists)
       await tx.payment.create({
         data: {
           orderId,
@@ -39,7 +53,7 @@ export class PaymentsService {
         },
       });
 
-      // 2. Update order status  
+      // Update order status
       await tx.order.update({
         where: { id: orderId },
         data: {
@@ -49,32 +63,22 @@ export class PaymentsService {
         },
       });
 
-      // 3. Add each product to user's library (skip if already owned)
-      for (const item of order.orderItems) {
-        await tx.userLibrary.upsert({
+      // Bulk upsert user library (grant access, idempotent)
+
+      await Promise.all(order.orderItems.map(item =>
+        tx.userLibrary.upsert({
           where: { user_id_productId: { user_id: userId, productId: item.productId } },
+          update: {},
           create: {
             user_id: userId,
             productId: item.productId,
             order_item_id: item.id,
           },
-          update: {},
-        });
-      }
-
-      // 4. Create purchase notification
-      await tx.notification.create({
-        data: {
-          user_id: userId,
-          type: 'order',
-          title: 'Thanh toán thành công',
-          message: `Đơn hàng #${orderId.slice(0, 8).toUpperCase()} đã được xử lý. Bạn có thể tải về từ thư viện.`,
-          link_url: `/library`,
-        },
-      });
-
-      return { success: true, transactionId, orderId, paidAt: now };
+        })
+      ));
     });
+
+    return { success: true, transactionId, orderId };
   }
 
   async getByOrder(orderId: string, userId: string) {

@@ -16,7 +16,7 @@ WebUI.verifyElementPresent(findTestObject('LoginPage/txt_email'), 10)
 
 // Test 1: Invalid email format
 WebUI.setText(findTestObject('LoginPage/txt_email'), 'invalidemail')
-WebUI.setEncryptedText(findTestObject('LoginPage/txt_password'), GlobalVariable.validPassword)
+WebUI.setText(findTestObject('LoginPage/txt_password'), GlobalVariable.validPassword)
 WebUI.click(findTestObject('LoginPage/btn_signIn'))
 WebUI.delay(2)
 
@@ -29,7 +29,7 @@ WebUI.clearText(findTestObject('LoginPage/txt_password'))
 
 // Test 2: Wrong password
 WebUI.setText(findTestObject('LoginPage/txt_email'), GlobalVariable.validEmail)
-WebUI.setEncryptedText(findTestObject('LoginPage/txt_password'), 'WrongPassword123!')
+WebUI.setText(findTestObject('LoginPage/txt_password'), 'WrongPassword123!')
 WebUI.click(findTestObject('LoginPage/btn_signIn'))
 WebUI.delay(2)
 
@@ -49,7 +49,7 @@ WebUI.verifyElementPresent(findTestObject('LoginPage/btn_signIn'), 5)
 
 // Test 4: Non-existent email
 WebUI.setText(findTestObject('LoginPage/txt_email'), 'nonexistent@example.com')
-WebUI.setEncryptedText(findTestObject('LoginPage/txt_password'), 'SomePassword123!')
+WebUI.setText(findTestObject('LoginPage/txt_password'), 'SomePassword123!')
 WebUI.click(findTestObject('LoginPage/btn_signIn'))
 WebUI.delay(2)
 

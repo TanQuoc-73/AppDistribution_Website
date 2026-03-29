@@ -31,6 +31,9 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successData, setSuccessData] = useState<{ transactionId: string; orderId: string } | null>(null);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponValid, setCouponValid] = useState(false);
 
   if (isLoading) return <div className="py-20 text-center text-neutral-400">Loading cart…</div>;
 
@@ -147,10 +150,37 @@ export default function CheckoutPage() {
                 type="text"
                 placeholder="Enter coupon code (optional)"
                 value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
+                onChange={(e) => { setCouponCode(e.target.value); setCouponDiscount(0); setCouponError(null); setCouponValid(false); }}
                 className="flex-1 rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm text-white placeholder-neutral-500 focus:border-blue-500 focus:outline-none"
               />
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!couponCode.trim()) return;
+                  setCouponError(null);
+                  setCouponValid(false);
+                  try {
+                    const { couponsApi } = await import('@/lib/api/endpoints');
+                    const res = await couponsApi.validate(couponCode.trim(), subtotal);
+                    const data = res.data?.data;
+                    setCouponDiscount(data?.discountAmount ?? 0);
+                    setCouponValid(true);
+                  } catch (err: any) {
+                    setCouponError(err.message || 'Invalid coupon');
+                    setCouponDiscount(0);
+                  }
+                }}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500"
+              >
+                Apply
+              </button>
             </div>
+            {couponValid && couponDiscount > 0 && (
+              <p className="mt-2 text-sm text-green-400">✓ Coupon applied! -${couponDiscount.toFixed(2)} discount</p>
+            )}
+            {couponError && (
+              <p className="mt-2 text-sm text-red-400">{couponError}</p>
+            )}
           </div>
 
           {/* Demo notice */}
@@ -186,10 +216,20 @@ export default function CheckoutPage() {
               })}
             </div>
 
-            <div className="mt-4 border-t border-neutral-700 pt-4">
+            <div className="mt-4 border-t border-neutral-700 pt-4 space-y-2">
+              <div className="flex justify-between text-sm text-neutral-400">
+                <span>Subtotal</span>
+                <span>${subtotal.toFixed(2)}</span>
+              </div>
+              {couponValid && couponDiscount > 0 && (
+                <div className="flex justify-between text-sm text-green-400">
+                  <span>Coupon Discount</span>
+                  <span>-${couponDiscount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>${Math.max(0, subtotal - couponDiscount).toFixed(2)}</span>
               </div>
             </div>
           </div>

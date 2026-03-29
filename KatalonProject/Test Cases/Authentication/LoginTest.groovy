@@ -29,7 +29,7 @@ WebUI.verifyElementPresent(findTestObject('LoginPage/btn_signIn'), 10)
 
 // Enter valid credentials
 WebUI.setText(findTestObject('LoginPage/txt_email'), GlobalVariable.validEmail)
-WebUI.setEncryptedText(findTestObject('LoginPage/txt_password'), GlobalVariable.validPassword)
+WebUI.setText(findTestObject('LoginPage/txt_password'), GlobalVariable.validPassword)
 
 // Click Sign In
 WebUI.click(findTestObject('LoginPage/btn_signIn'))

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description>Password input on the login page</description>
    <name>txt_password</name>
@@ -9,10 +9,14 @@
          <key>XPATH</key>
          <value>//form//input[@type='password']</value>
       </entry>
-      <entry>
-         <key>CSS</key>
-         <value>form input[type='password']</value>
-      </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
+   <useRalativeImagePath>false</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//form//input[@type='password']</value>
+   </webElementProperties>
 </WebElementEntity>

@@ -26,7 +26,7 @@ WebUI.verifyElementPresent(findTestObject('RegisterPage/btn_register'), 10)
 // Enter registration details
 WebUI.setText(findTestObject('RegisterPage/txt_username'), testUsername)
 WebUI.setText(findTestObject('RegisterPage/txt_email'), testEmail)
-WebUI.setEncryptedText(findTestObject('RegisterPage/txt_password'), testPassword)
+WebUI.setText(findTestObject('RegisterPage/txt_password'), testPassword)
 
 // Click Register
 WebUI.click(findTestObject('RegisterPage/btn_register'))

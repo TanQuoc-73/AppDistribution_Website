@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description>Register submit button</description>
    <name>btn_register</name>
@@ -9,10 +9,14 @@
          <key>XPATH</key>
          <value>//form//button[@type='submit' and contains(text(),'Register')]</value>
       </entry>
-      <entry>
-         <key>CSS</key>
-         <value>form button[type='submit'].btn-autumn</value>
-      </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
+   <useRalativeImagePath>false</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//form//button[@type='submit' and contains(text(),'Register')]</value>
+   </webElementProperties>
 </WebElementEntity>

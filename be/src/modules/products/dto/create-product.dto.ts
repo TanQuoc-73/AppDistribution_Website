@@ -71,22 +71,5 @@ export class CreateProductDto {
   @IsUUID('4', { each: true })
   tagIds?: string[];
 
-  // ─── Inline version fields (auto-create initial version) ──────────────────
-
-  @ApiPropertyOptional({ description: 'Download URL for initial version' })
-  @IsOptional()
-  @IsString()
-  downloadUrl?: string;
-
-  @ApiPropertyOptional({ description: 'Version string, e.g. 1.0.0' })
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  versionString?: string;
-
-  @ApiPropertyOptional({ description: 'File size in bytes' })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  fileSize?: number;
+  // No version fields here. Product creation is metadata only.
 }

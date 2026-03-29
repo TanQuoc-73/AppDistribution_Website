@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Param, Body, UseGuards, ParseUUIDPipe, Query } from '@nestjs/common';
+﻿import { Controller, Get, Post, Param, Body, UseGuards, ParseUUIDPipe, Query, Headers } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -16,8 +16,14 @@ export class OrdersController {
 
   @Post()
   @ApiOperation({ summary: 'Tạo đơn hàng mới' })
-  create(@CurrentUser() user: any, @Body() dto: CreateOrderDto) {
-    return this.ordersService.create(user.id, dto);
+  create(
+    @CurrentUser() user: any,
+    @Body() dto: CreateOrderDto,
+    @Headers() headers: Record<string, string>,
+  ) {
+    // Extract idempotency key from headers (case-insensitive)
+    const idempotencyKey = headers['x-idempotency-key'] || headers['X-Idempotency-Key'];
+    return this.ordersService.create(user.id, dto, idempotencyKey);
   }
 
   @Get('my')

@@ -116,13 +116,16 @@ export const libraryApi = {
 // ─── Reviews ──────────────────────────────────────────────────────────────────
 
 export const reviewsApi = {
-  getByProduct: (productId: string) =>
-    api.get<ApiResponse<Review[]>>(`/reviews/product/${productId}`),
+  getByProduct: (productId: string, page = 1, limit = 20) =>
+    api.get<ApiResponse<any>>(`/reviews/product/${productId}`, { params: { page, limit } }),
 
-  create: (payload: { productId: string; rating: number; title?: string; content?: string; isRecommended?: boolean }) =>
+  getMyReview: (productId: string) =>
+    api.get<ApiResponse<Review | null>>(`/reviews/my/${productId}`),
+
+  create: (payload: { productId: string; rating: number; title?: string; comment?: string }) =>
     api.post<ApiResponse<Review>>('/reviews', payload),
 
-  update: (id: string, payload: Partial<Pick<Review, 'rating' | 'title' | 'content' | 'isRecommended'>>) =>
+  update: (id: string, payload: { rating?: number; title?: string; comment?: string }) =>
     api.patch<ApiResponse<Review>>(`/reviews/${id}`, payload),
 
   remove: (id: string) =>
@@ -143,6 +146,9 @@ export const wishlistsApi = {
 
   remove: (productId: string) =>
     api.delete<ApiResponse<null>>(`/wishlists/${productId}`),
+
+  check: (productId: string) =>
+    api.get<ApiResponse<{ wishlisted: boolean }>>(`/wishlists/check/${productId}`),
 };
 
 // ─── Downloads ────────────────────────────────────────────────────────────────
@@ -220,8 +226,11 @@ export const developerApi = {
 // ─── Notifications ────────────────────────────────────────────────────────────
 
 export const notificationsApi = {
-  getAll: () =>
-    api.get<ApiResponse<Notification[]>>('/notifications'),
+  getAll: (page = 1, limit = 30) =>
+    api.get<ApiResponse<any>>('/notifications', { params: { page, limit } }),
+
+  getUnreadCount: () =>
+    api.get<ApiResponse<{ unreadCount: number }>>('/notifications/unread-count'),
 
   markRead: (id: string) =>
     api.patch<ApiResponse<null>>(`/notifications/${id}/read`),
@@ -272,6 +281,18 @@ export const newsApi = {
 // ─── Admin ────────────────────────────────────────────────────────────────────
 
 export const adminApi = {
+      updateProductVersion: (productId: string, versionId: string, data: { version?: string; changelog?: string; downloadUrl?: string; fileSize?: number }) =>
+        api.patch<ApiResponse<ProductVersion>>(`/admin/versions/${versionId}`, data),
+      deleteProductVersion: (productId: string, versionId: string) =>
+        api.delete<ApiResponse<null>>(`/admin/versions/${versionId}`),
+      setProductVersionLatest: (versionId: string) =>
+        api.post<ApiResponse<ProductVersion>>(`/admin/versions/${versionId}/set-latest`),
+    getProductById: (id: string) =>
+      api.get<ApiResponse<Product>>(`/admin/products/${id}`),
+    getProductVersions: (productId: string) =>
+      api.get<ApiResponse<ProductVersion[]>>(`/admin/products/${productId}/versions`),
+    createProductVersion: (productId: string, data: { version: string; changelog?: string; downloadUrl?: string; fileSize?: number }) =>
+      api.post<ApiResponse<ProductVersion>>(`/admin/products/${productId}/versions`, data),
   getStats: () =>
     api.get<ApiResponse<{ totalUsers: number; totalProducts: number; totalOrders: number; totalRevenue: number }>>('/admin/stats'),
 
@@ -328,4 +349,47 @@ export const adminApi = {
     api.patch(`/admin/banners/${id}`, data),
   deleteBanner: (id: string) =>
     api.delete(`/admin/banners/${id}`),
+
+  // Coupons
+  getCoupons: (params?: { page?: number; limit?: number }) =>
+    api.get('/admin/coupons', { params }),
+  createCoupon: (data: { code: string; description?: string; discountType: string; discountValue: number; minOrderValue?: number; maxDiscount?: number; maxUses?: number; isActive?: boolean; validFrom?: string; validUntil?: string }) =>
+    api.post('/admin/coupons', data),
+  updateCoupon: (id: string, data: Record<string, unknown>) =>
+    api.patch(`/admin/coupons/${id}`, data),
+  deleteCoupon: (id: string) =>
+    api.delete(`/admin/coupons/${id}`),
+
+  // Refunds
+  getRefunds: (params?: { page?: number; limit?: number }) =>
+    api.get('/admin/refunds', { params }),
+  approveRefund: (id: string, adminNotes?: string) =>
+    api.patch(`/admin/refunds/${id}/approve`, { adminNotes }),
+  rejectRefund: (id: string, adminNotes?: string) =>
+    api.patch(`/admin/refunds/${id}/reject`, { adminNotes }),
+
+  // Tags
+  createTag: (data: { name: string; slug: string }) =>
+    api.post('/admin/tags', data),
+  updateTag: (id: string, data: { name?: string; slug?: string }) =>
+    api.patch(`/admin/tags/${id}`, data),
+  deleteTag: (id: string) =>
+    api.delete(`/admin/tags/${id}`),
+};
+
+// ─── Coupons (user-facing) ────────────────────────────────────────────────────
+
+export const couponsApi = {
+  validate: (code: string, subtotal: number) =>
+    api.get<ApiResponse<{ valid: boolean; discountAmount: number; coupon: any }>>('/coupons/validate', { params: { code, subtotal } }),
+};
+
+// ─── Refunds (user-facing) ────────────────────────────────────────────────────
+
+export const refundsApi = {
+  request: (orderItemId: string, reason: string) =>
+    api.post<ApiResponse<any>>('/refunds/request', { orderItemId, reason }),
+
+  getMy: () =>
+    api.get<ApiResponse<any[]>>('/refunds/my'),
 };

@@ -23,9 +23,6 @@ const emptyForm = {
   ageRating: 'everyone',
   developerId: '',
   releaseDate: '',
-  downloadUrl: '',
-  versionString: '1.0.0',
-  fileSize: '',
 };
 
 export default function AdminProductsPage() {
@@ -77,9 +74,6 @@ export default function AdminProductsPage() {
       ageRating: p.ageRating ?? 'everyone',
       developerId: p.developerId ?? '',
       releaseDate: p.releaseDate ? p.releaseDate.slice(0, 10) : '',
-      downloadUrl: (p as any).versions?.[0]?.downloadUrl ?? '',
-      versionString: (p as any).versions?.[0]?.version ?? '',
-      fileSize: (p as any).versions?.[0]?.fileSize?.toString() ?? '',
     });
     setFormError(null);
     setModalOpen(true);
@@ -102,12 +96,11 @@ export default function AdminProductsPage() {
           ageRating: form.ageRating,
           developerId: form.developerId || undefined,
           releaseDate: form.releaseDate || undefined,
-          downloadUrl: form.downloadUrl || undefined,
-          versionString: form.versionString || undefined,
-          fileSize: form.fileSize ? Number(form.fileSize) : undefined,
-        } as any);
+        });
+        setModalOpen(false);
+        fetchProducts(page);
       } else {
-        await adminApi.createProduct({
+        const res = await adminApi.createProduct({
           name: form.name,
           slug: form.slug,
           shortDescription: form.shortDescription || undefined,
@@ -119,13 +112,11 @@ export default function AdminProductsPage() {
           ageRating: form.ageRating,
           developerId: form.developerId || undefined,
           releaseDate: form.releaseDate || undefined,
-          downloadUrl: form.downloadUrl || undefined,
-          versionString: form.versionString || undefined,
-          fileSize: form.fileSize ? Number(form.fileSize) : undefined,
-        } as any);
+        });
+        setModalOpen(false);
+        // Redirect to product detail page for version management
+        window.location.href = `/admin/products/${res.data.data.id}`;
       }
-      setModalOpen(false);
-      fetchProducts(page);
     } catch (err: any) {
       setFormError(err?.message ?? 'An error occurred. Please try again.');
     } finally {

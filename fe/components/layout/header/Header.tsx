@@ -9,6 +9,7 @@ import { useCartStore } from '@/stores/useCartStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import NotificationBell from './NotificationBell';
 
 export default function Header() {
   const { user, profile } = useAuth();
@@ -106,6 +107,7 @@ export default function Header() {
 
           {user ? (
             <>
+              <NotificationBell />
               <Link href="/library" className="hidden text-sm text-stone-400 transition hover:text-amber-300 sm:block">Library</Link>
 
               {/* Avatar + display name */}

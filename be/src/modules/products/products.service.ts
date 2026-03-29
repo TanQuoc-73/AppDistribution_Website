@@ -98,42 +98,25 @@ export class ProductsService {
   }
 
   async create(developerId: string, dto: CreateProductDto) {
-    const { categoryIds, tagIds, downloadUrl, versionString, fileSize, ...data } = dto;
-    return this.prisma.$transaction(async (tx) => {
-      const product = await tx.product.create({
-        data: {
-          ...data,
-          developerId,
-          slug: this.toSlug(data.name),
-          categories: categoryIds
-            ? { create: categoryIds.map((id) => ({ categoryId: id })) }
-            : undefined,
-          tags: tagIds
-            ? { create: tagIds.map((id) => ({ tagId: id })) }
-            : undefined,
-        },
-      });
-
-      // Auto-create initial version if download info provided
-      if (downloadUrl || versionString) {
-        await tx.productVersion.create({
-          data: {
-            productId: product.id,
-            version: versionString || '1.0.0',
-            downloadUrl: downloadUrl || null,
-            fileSize: fileSize ?? null,
-            isLatest: true,
-          },
-        });
-      }
-
-      return product;
+    const { categoryIds, tagIds, ...data } = dto;
+    return this.prisma.product.create({
+      data: {
+        ...data,
+        developerId,
+        slug: this.toSlug(data.name),
+        categories: categoryIds
+          ? { create: categoryIds.map((id) => ({ categoryId: id })) }
+          : undefined,
+        tags: tagIds
+          ? { create: tagIds.map((id) => ({ tagId: id })) }
+          : undefined,
+      },
     });
   }
 
   async update(id: string, dto: UpdateProductDto) {
     await this.findById(id);
-    const { categoryIds, tagIds, downloadUrl, versionString, fileSize, ...data } = dto;
+    const { categoryIds, tagIds, ...data } = dto;
     return this.prisma.$transaction(async (tx) => {
       const product = await tx.product.update({ where: { id }, data });
       if (categoryIds !== undefined) {
@@ -152,34 +135,6 @@ export class ProductsService {
           });
         }
       }
-
-      // Inline version update: update latest version or create new one
-      if (downloadUrl !== undefined || versionString !== undefined || fileSize !== undefined) {
-        const latestVersion = await tx.productVersion.findFirst({
-          where: { productId: id, isLatest: true },
-        });
-        if (latestVersion) {
-          await tx.productVersion.update({
-            where: { id: latestVersion.id },
-            data: {
-              ...(downloadUrl !== undefined && { downloadUrl }),
-              ...(versionString !== undefined && { version: versionString }),
-              ...(fileSize !== undefined && { fileSize }),
-            },
-          });
-        } else {
-          await tx.productVersion.create({
-            data: {
-              productId: id,
-              version: versionString || '1.0.0',
-              downloadUrl: downloadUrl || null,
-              fileSize: fileSize ?? null,
-              isLatest: true,
-            },
-          });
-        }
-      }
-
       return product;
     });
   }

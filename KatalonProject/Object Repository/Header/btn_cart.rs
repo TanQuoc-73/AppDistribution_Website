@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description>Cart icon in header</description>
    <name>btn_cart</name>
@@ -9,10 +9,14 @@
          <key>XPATH</key>
          <value>//a[@href='/cart'] | //a[contains(@data-cart-icon,'')]</value>
       </entry>
-      <entry>
-         <key>CSS</key>
-         <value>a[href='/cart'], [data-cart-icon]</value>
-      </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
+   <useRalativeImagePath>false</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//a[@href='/cart'] | //a[contains(@data-cart-icon,'')]</value>
+   </webElementProperties>
 </WebElementEntity>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description>Email input on the login page</description>
    <name>txt_email</name>
@@ -9,10 +9,14 @@
          <key>XPATH</key>
          <value>//form//input[@type='text' or @type='email'][1]</value>
       </entry>
-      <entry>
-         <key>CSS</key>
-         <value>form input[type='email'], form input[type='text']:first-of-type</value>
-      </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
+   <useRalativeImagePath>false</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//form//input[@type='text' or @type='email'][1]</value>
+   </webElementProperties>
 </WebElementEntity>

@@ -24,14 +24,14 @@ class CustomKeywords {
     /**
      * Login with given credentials
      * @param email - User email
-     * @param password - User password (encrypted)
+     * @param password - User password (plain text)
      */
     @Keyword
     def login(String email, String password) {
         WebUI.navigateToUrl(GlobalVariable.baseUrl + '/login')
         WebUI.waitForPageLoad(10)
         WebUI.setText(findTestObject('LoginPage/txt_email'), email)
-        WebUI.setEncryptedText(findTestObject('LoginPage/txt_password'), password)
+        WebUI.setText(findTestObject('LoginPage/txt_password'), password)
         WebUI.click(findTestObject('LoginPage/btn_signIn'))
         WebUI.waitForPageLoad(10)
         WebUI.delay(2)

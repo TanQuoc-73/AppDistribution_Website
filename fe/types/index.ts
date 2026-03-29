@@ -142,15 +142,21 @@ export interface Order {
 
 export interface Review {
   id: string;
-  profileId: string;
+  user_id: string;
   productId: string;
   rating: number;
   title: string | null;
-  content: string | null;
-  isRecommended: boolean | null;
-  helpfulCount: number;
+  comment: string | null;
+  is_approved: boolean;
+  helpful_count: number;
   createdAt: string;
   updatedAt: string;
+  profiles?: {
+    id: string;
+    username: string;
+    displayName: string | null;
+    avatarUrl: string | null;
+  };
   profile?: Profile;
 }
 
