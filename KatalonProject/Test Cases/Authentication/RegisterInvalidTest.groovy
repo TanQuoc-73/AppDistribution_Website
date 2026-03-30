@@ -21,10 +21,10 @@ WebUI.delay(2)
 // Verify user stays on register page (HTML5 validation or error message)
 WebUI.verifyElementPresent(findTestObject('RegisterPage/btn_register'), 5)
 
-// Clear fields
-WebUI.clearText(findTestObject('RegisterPage/txt_username'))
-WebUI.clearText(findTestObject('RegisterPage/txt_email'))
-WebUI.clearText(findTestObject('RegisterPage/txt_password'))
+// Reload trang để xóa sạch React state và HTML5 validation popup
+WebUI.navigateToUrl(GlobalVariable.baseUrl + '/register')
+WebUI.waitForPageLoad(5)
+WebUI.delay(1)
 
 // Test 2: Password too short (min 8 characters)
 WebUI.setText(findTestObject('RegisterPage/txt_username'), 'validuser')
@@ -35,10 +35,10 @@ WebUI.delay(2)
 
 WebUI.verifyElementPresent(findTestObject('RegisterPage/btn_register'), 5)
 
-// Clear fields
-WebUI.clearText(findTestObject('RegisterPage/txt_username'))
-WebUI.clearText(findTestObject('RegisterPage/txt_email'))
-WebUI.clearText(findTestObject('RegisterPage/txt_password'))
+// Reload trang
+WebUI.navigateToUrl(GlobalVariable.baseUrl + '/register')
+WebUI.waitForPageLoad(5)
+WebUI.delay(1)
 
 // Test 3: Invalid email format
 WebUI.setText(findTestObject('RegisterPage/txt_username'), 'validuser')
@@ -50,9 +50,9 @@ WebUI.delay(2)
 WebUI.verifyElementPresent(findTestObject('RegisterPage/btn_register'), 5)
 
 // Test 4: Empty form submission
-WebUI.clearText(findTestObject('RegisterPage/txt_username'))
-WebUI.clearText(findTestObject('RegisterPage/txt_email'))
-WebUI.clearText(findTestObject('RegisterPage/txt_password'))
+WebUI.navigateToUrl(GlobalVariable.baseUrl + '/register')
+WebUI.waitForPageLoad(5)
+WebUI.delay(1)
 WebUI.click(findTestObject('RegisterPage/btn_register'))
 WebUI.delay(1)
 

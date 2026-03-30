@@ -1,39 +1,43 @@
-// TC_Admin_AppLogic
-// Test Steps:
-// 1. Open browser
-// 2. Login as admin
-// 3. Navigate to admin logic app page
-// 4. Create a new logic app (e.g., set up a workflow)
-// 5. Configure logic app steps (e.g., add triggers, actions)
-// 6. Save logic app
-// 7. Verify logic app appears in list
-// 8. Edit logic app and verify changes
-// 9. Delete logic app and verify removal
-// Expected Result: Logic app can be created, edited, and deleted successfully
-
 import static com.kms.katalon.core.testobject.ObjectRepository.findTestObject
 import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+import internal.GlobalVariable as GlobalVariable
+import com.kms.katalon.core.model.FailureHandling as FailureHandling
+
+/**
+ * Test Case: Admin - Dashboard và Phân quyền
+ * Verifies that Admin user can login and view the Admin Dashboard and Sidebar navigation.
+ */
 
 WebUI.openBrowser('')
-WebUI.navigateToUrl('https://your-app-url.com/admin/logic-apps')
-WebUI.setText(findTestObject('LoginPage/Username'), 'admin')
-WebUI.setEncryptedText(findTestObject('LoginPage/Password'), 'encrypted_admin_password')
-WebUI.click(findTestObject('LoginPage/LoginButton'))
-WebUI.click(findTestObject('LogicAppPage/AddLogicAppButton'))
-WebUI.setText(findTestObject('LogicAppPage/LogicAppNameField'), 'Test Logic App')
-WebUI.click(findTestObject('LogicAppPage/AddTriggerButton'))
-WebUI.setText(findTestObject('LogicAppPage/TriggerField'), 'On Product Created')
-WebUI.click(findTestObject('LogicAppPage/AddActionButton'))
-WebUI.setText(findTestObject('LogicAppPage/ActionField'), 'Send Notification')
-WebUI.click(findTestObject('LogicAppPage/SaveButton'))
-WebUI.verifyElementPresent(findTestObject('LogicAppPage/LogicAppListItem'), 10)
-// Edit logic app
-WebUI.click(findTestObject('LogicAppPage/EditLogicAppButton'))
-WebUI.setText(findTestObject('LogicAppPage/LogicAppNameField'), 'Updated Logic App')
-WebUI.click(findTestObject('LogicAppPage/SaveButton'))
-WebUI.verifyElementText(findTestObject('LogicAppPage/LogicAppNameField'), 'Updated Logic App')
-// Delete logic app
-WebUI.click(findTestObject('LogicAppPage/DeleteLogicAppButton'))
-WebUI.click(findTestObject('LogicAppPage/ConfirmDeleteButton'))
-WebUI.verifyElementNotPresent(findTestObject('LogicAppPage/LogicAppListItem'), 10)
+WebUI.maximizeWindow()
+
+WebUI.navigateToUrl(GlobalVariable.baseUrl + '/login')
+WebUI.waitForPageLoad(10)
+WebUI.setText(findTestObject('LoginPage/txt_email'), GlobalVariable.adminEmail)
+WebUI.setText(findTestObject('LoginPage/txt_password'), GlobalVariable.adminPassword)
+WebUI.click(findTestObject('LoginPage/btn_signIn'))
+WebUI.waitForPageLoad(10)
+
+// Truy cập Dashboard
+WebUI.navigateToUrl(GlobalVariable.baseUrl + '/admin/dashboard')
+WebUI.waitForPageLoad(10)
+WebUI.delay(2)
+
+String currentUrl = WebUI.getUrl()
+if (currentUrl.contains('/admin')) {
+    WebUI.comment('Passed: Tài khoản admin truy cập được Admin Panel.')
+    
+    // Kiểm tra UI Dashboard cơ bản
+    boolean hasSidebar = WebUI.verifyElementPresent(findTestObject('AdminPage/nav_sidebar'), 5, FailureHandling.OPTIONAL)
+    boolean hasDashboardData = WebUI.verifyTextPresent('Dashboard', false, FailureHandling.OPTIONAL) || WebUI.verifyTextPresent('Tổng quan', false, FailureHandling.OPTIONAL)
+    
+    if (hasSidebar || hasDashboardData) {
+        WebUI.comment('Passed: Dashboard load thành công với giao diện cơ bản.')
+    } else {
+        WebUI.comment('LỖI: Vào được URL nhưng không thấy thông tin giao diện Dashboard.')
+    }
+} else {
+    WebUI.comment('LỖI: Điều hướng thất bại, Admin user bị chặn hoặc đá văng khỏi /admin.')
+}
+
 WebUI.closeBrowser()

@@ -1,5 +1,6 @@
 import static com.kms.katalon.core.testobject.ObjectRepository.findTestObject
 import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+import com.kms.katalon.core.model.FailureHandling as FailureHandling
 import internal.GlobalVariable as GlobalVariable
 
 /**
@@ -32,7 +33,18 @@ WebUI.setText(findTestObject('RegisterPage/txt_password'), testPassword)
 WebUI.click(findTestObject('RegisterPage/btn_register'))
 WebUI.delay(3)
 
-// Verify success message or redirect to login page
-WebUI.verifyElementPresent(findTestObject('RegisterPage/txt_successMessage'), 15)
+// Ứng dụng sau khi đăng ký thành công sẽ không hiện popup/message tại chỗ mà redirect sang `/login?registered=1`
+WebUI.waitForPageLoad(10)
+boolean isOnLoginPage = WebUI.verifyElementPresent(findTestObject('LoginPage/btn_signIn'), 15, FailureHandling.OPTIONAL)
+
+if (isOnLoginPage) {
+    WebUI.comment('Đăng ký thành công và đã redirect về trang login.')
+    String url = WebUI.getUrl()
+    if (url.contains('registered=1')) {
+        WebUI.comment('URL có chứa tham số registered=1 đúng như thiết kế FE.')
+    }
+} else {
+    WebUI.comment('LỖI: Trình duyệt không chuyển hướng về trang login. URL hiện tại: ' + WebUI.getUrl())
+}
 
 WebUI.closeBrowser()

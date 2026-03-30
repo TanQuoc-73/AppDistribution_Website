@@ -15,13 +15,14 @@ WebUI.maximizeWindow()
 WebUI.verifyElementPresent(findTestObject('LoginPage/txt_email'), 10)
 
 // Test 1: Invalid email format
+// Do input type="email" có HTML5 validation, form sẽ không submit được nên không có error message từ server
 WebUI.setText(findTestObject('LoginPage/txt_email'), 'invalidemail')
 WebUI.setText(findTestObject('LoginPage/txt_password'), GlobalVariable.validPassword)
 WebUI.click(findTestObject('LoginPage/btn_signIn'))
 WebUI.delay(2)
 
-// Verify error message appears
-WebUI.verifyElementPresent(findTestObject('LoginPage/txt_errorMessage'), 10)
+// Verify user vẫn ở lại trang login (form chưa được submit)
+WebUI.verifyElementPresent(findTestObject('LoginPage/btn_signIn'), 5)
 
 // Clear fields
 WebUI.clearText(findTestObject('LoginPage/txt_email'))

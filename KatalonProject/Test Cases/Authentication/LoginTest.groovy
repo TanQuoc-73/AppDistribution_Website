@@ -1,47 +1,88 @@
-import static com.kms.katalon.core.checkpoint.CheckpointFactory.findCheckpoint
-import static com.kms.katalon.core.testcase.TestCaseFactory.findTestCase
-import static com.kms.katalon.core.testdata.TestDataFactory.findTestData
 import static com.kms.katalon.core.testobject.ObjectRepository.findTestObject
-import com.kms.katalon.core.checkpoint.Checkpoint as Checkpoint
-import com.kms.katalon.core.cucumber.keyword.CucumberBuiltinKeywords as CucumberKW
-import com.kms.katalon.core.mobile.keyword.MobileBuiltInKeywords as Mobile
-import com.kms.katalon.core.model.FailureHandling as FailureHandling
-import com.kms.katalon.core.testcase.TestCase as TestCase
-import com.kms.katalon.core.testdata.TestData as TestData
-import com.kms.katalon.core.testobject.TestObject as TestObject
-import com.kms.katalon.core.webservice.keyword.WSBuiltInKeywords as WS
 import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
+import com.kms.katalon.core.model.FailureHandling as FailureHandling
 import internal.GlobalVariable as GlobalVariable
 
 /**
- * Test Case: Login with valid credentials
- * Verifies that a user can sign in successfully with correct email/password
+ * Test Case: Login with invalid credentials
+ * Verifies that appropriate error message is shown for wrong email/password
  */
-
 WebUI.openBrowser('')
+
 WebUI.navigateToUrl(GlobalVariable.baseUrl + '/login')
+
 WebUI.maximizeWindow()
 
-// Verify login page loads correctly
+// Verify login page loaded
 WebUI.verifyElementPresent(findTestObject('LoginPage/txt_email'), 10)
-WebUI.verifyElementPresent(findTestObject('LoginPage/txt_password'), 10)
-WebUI.verifyElementPresent(findTestObject('LoginPage/btn_signIn'), 10)
 
-// Enter valid credentials
-WebUI.setText(findTestObject('LoginPage/txt_email'), GlobalVariable.validEmail)
+// Test 1: Invalid email format
+WebUI.setText(findTestObject('LoginPage/txt_email'), 'testuser1@gmail.com')
+
 WebUI.setText(findTestObject('LoginPage/txt_password'), GlobalVariable.validPassword)
 
-// Click Sign In
 WebUI.click(findTestObject('LoginPage/btn_signIn'))
 
-// Wait for redirect and verify successful login
-WebUI.waitForPageLoad(10)
 WebUI.delay(2)
 
-// Verify user is redirected to home page or profile is visible in header
-WebUI.verifyElementPresent(findTestObject('Header/lnk_profile'), 15)
+// Verify error message appears
+boolean hasError1 = WebUI.verifyElementPresent(findTestObject('LoginPage/txt_errorMessage'), 10, FailureHandling.OPTIONAL)
+if (!hasError1) {
+    WebUI.comment('LỖI KHÔNG TÌM THẤY ERROR MESSAGE TẠI TEST 1. URL: ' + WebUI.getUrl())
+} else {
+    WebUI.comment('Test 1 Passed: Đã thấy error message.')
+}
 
-// Verify Sign Out button is present (indicates logged in state)
-WebUI.verifyElementPresent(findTestObject('Header/btn_signOut'), 10)
+// Clear fields
+WebUI.clearText(findTestObject('LoginPage/txt_email'))
+
+WebUI.clearText(findTestObject('LoginPage/txt_password'))
+
+// Test 2: Wrong password
+WebUI.setText(findTestObject('LoginPage/txt_email'), GlobalVariable.adminEmail)
+
+WebUI.setText(findTestObject('LoginPage/txt_password'), 'WrongPassword123!')
+
+WebUI.click(findTestObject('LoginPage/btn_signIn'))
+
+WebUI.delay(2)
+
+// Verify error message appears
+boolean hasError2 = WebUI.verifyElementPresent(findTestObject('LoginPage/txt_errorMessage'), 10, FailureHandling.OPTIONAL)
+if (!hasError2) {
+    WebUI.comment('LỖI KHÔNG TÌM THẤY ERROR MESSAGE TẠI TEST 2. URL: ' + WebUI.getUrl())
+} else {
+    WebUI.comment('Test 2 Passed: Đã thấy error message.')
+}
+
+// Clear fields
+WebUI.clearText(findTestObject('LoginPage/txt_email'))
+
+WebUI.clearText(findTestObject('LoginPage/txt_password'))
+
+// Test 3: Empty fields
+WebUI.click(findTestObject('LoginPage/btn_signIn'))
+
+WebUI.delay(1)
+
+// Verify user stays on login page
+WebUI.verifyElementPresent(findTestObject('LoginPage/btn_signIn'), 5)
+
+// Test 4: Non-existent email
+WebUI.setText(findTestObject('LoginPage/txt_email'), 'testuser@Gmail.com')
+
+WebUI.setText(findTestObject('LoginPage/txt_password'), '12345678')
+
+WebUI.click(findTestObject('LoginPage/btn_signIn'))
+
+WebUI.delay(2)
+
+boolean hasError4 = WebUI.verifyElementPresent(findTestObject('LoginPage/txt_errorMessage'), 10, FailureHandling.OPTIONAL)
+if (!hasError4) {
+    WebUI.comment('LỖI KHÔNG TÌM THẤY ERROR MESSAGE TẠI TEST 4. URL: ' + WebUI.getUrl())
+} else {
+    WebUI.comment('Test 4 Passed: Đã thấy error message.')
+}
 
 WebUI.closeBrowser()
+

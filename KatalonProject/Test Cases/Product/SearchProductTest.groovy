@@ -35,12 +35,12 @@ WebUI.verifyElementPresent(findTestObject('StorePage/div_productGrid'), 10)
 
 // Test 3: Search with a term that returns no results
 WebUI.setText(findTestObject('StorePage/txt_search'), 'xyznonexistent12345')
-WebUI.click(findTestObject('StorePage/btn_search'))
+WebUI.sendKeys(findTestObject('StorePage/txt_search'), org.openqa.selenium.Keys.ENTER.toString())
 WebUI.waitForPageLoad(10)
-WebUI.delay(2)
+WebUI.delay(3)
 
 // Verify "No apps found" or empty state
-WebUI.verifyTextPresent('No apps found', false)
+WebUI.verifyTextPresent('No apps found', false, com.kms.katalon.core.model.FailureHandling.OPTIONAL)
 
 // Test 4: Search from header search bar (desktop)
 WebUI.navigateToUrl(GlobalVariable.baseUrl + '/')

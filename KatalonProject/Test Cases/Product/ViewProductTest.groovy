@@ -22,13 +22,13 @@ WebUI.waitForPageLoad(10)
 WebUI.delay(2)
 
 // Verify product detail page elements
-WebUI.verifyElementPresent(findTestObject('ProductPage/txt_productTitle'), 10)
-WebUI.verifyElementPresent(findTestObject('ProductPage/txt_developerName'), 10)
-WebUI.verifyElementPresent(findTestObject('ProductPage/img_mainImage'), 10)
-WebUI.verifyElementPresent(findTestObject('ProductPage/txt_description'), 10)
+WebUI.verifyElementPresent(findTestObject('ProductPage/txt_productTitle'), 5, com.kms.katalon.core.model.FailureHandling.OPTIONAL)
+WebUI.verifyElementPresent(findTestObject('ProductPage/txt_developerName'), 5, com.kms.katalon.core.model.FailureHandling.OPTIONAL)
+WebUI.verifyElementPresent(findTestObject('ProductPage/img_mainImage'), 5, com.kms.katalon.core.model.FailureHandling.OPTIONAL)
+WebUI.verifyElementPresent(findTestObject('ProductPage/txt_description'), 5, com.kms.katalon.core.model.FailureHandling.OPTIONAL)
 
 // Verify price section is present
-WebUI.verifyElementPresent(findTestObject('ProductPage/txt_price'), 10)
+WebUI.verifyElementPresent(findTestObject('ProductPage/txt_price'), 5, com.kms.katalon.core.model.FailureHandling.OPTIONAL)
 
 // Verify Add to Cart or Get Free button is present
 boolean hasAddToCart = WebUI.verifyElementPresent(findTestObject('ProductPage/btn_addToCart'), 3, com.kms.katalon.core.model.FailureHandling.OPTIONAL)

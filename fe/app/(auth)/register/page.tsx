@@ -62,6 +62,7 @@ export default function RegisterPage() {
               <div>
                 <label className="mb-1 block text-sm text-autumn-muted">Username</label>
                 <input
+                  type="text"
                   required
                   minLength={3}
                   maxLength={30}
