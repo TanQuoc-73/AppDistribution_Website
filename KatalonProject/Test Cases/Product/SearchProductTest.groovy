@@ -40,7 +40,7 @@ WebUI.waitForPageLoad(10)
 WebUI.delay(3)
 
 // Verify "No apps found" or empty state
-WebUI.verifyTextPresent('No apps found', false, com.kms.katalon.core.model.FailureHandling.OPTIONAL)
+WebUI.verifyTextPresent('No apps found', false, com.kms.katalon.core.model.FailureHandling.STOP_ON_FAILURE)
 
 // Test 4: Search from header search bar (desktop)
 WebUI.navigateToUrl(GlobalVariable.baseUrl + '/')

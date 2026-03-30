@@ -22,17 +22,11 @@ WebUI.sendKeys(findTestObject('StorePage/txt_search'), Keys.chord(Keys.ENTER))
 WebUI.delay(3)
 
 // Verify thông báo lỗi hiển thị (trên empty state UI)
-boolean noResults = WebUI.verifyTextPresent('No apps found', false, FailureHandling.OPTIONAL)
-if (noResults) {
-    WebUI.comment('Test Passed: Đã hiển thị đúng thông báo "No apps found" UI state.')
-} else {
-    WebUI.comment('Test Failed: Không tìm thấy dòng chữ "No apps found".')
-}
+WebUI.verifyTextPresent('No apps found', false, FailureHandling.STOP_ON_FAILURE)
+WebUI.comment('Test Passed: Đã hiển thị đúng thông báo "No apps found" UI state.')
 
 // Verify filter chip (thẻ mô tả điều kiện lọc) xuất hiện trên đầu danh sách
-boolean hasFilterChip = WebUI.verifyTextPresent('Filtering:', false, FailureHandling.OPTIONAL)
-if (hasFilterChip) {
-     WebUI.comment('Đã xuất hiện chip báo hiệu bộ lọc search đang hoạt động.')
-}
+WebUI.verifyTextPresent('Filtering:', false, FailureHandling.CONTINUE_ON_FAILURE)
+WebUI.comment('Đã xuất hiện chip báo hiệu bộ lọc search đang hoạt động.')
 
 WebUI.closeBrowser()

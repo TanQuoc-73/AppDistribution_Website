@@ -58,17 +58,14 @@ if (WebUI.verifyTextPresent('Your cart is empty', false, FailureHandling.OPTIONA
                  WebUI.click(findTestObject('CheckoutPage/btn_placeOrder'))
                  WebUI.waitForPageLoad(10)
                  WebUI.delay(5)
-                 
-                 if (WebUI.getUrl().contains('/library') || WebUI.getUrl().contains('success')) {
-                     WebUI.comment('Passed: Checkout thành công và đã redirect.')
-                 } else {
-                     WebUI.comment('LỖI: Bấm Place Order nhưng không chuyển trang thành công.')
-                 }
-            } else {
-                 WebUI.comment('LỖI: Không tìm thấy nút Place Order tại trang /checkout.')
-            }
+                 boolean isRedirected = WebUI.getUrl().contains('/library') || WebUI.getUrl().contains('success') || WebUI.getUrl().contains('order-success')
+                 assert isRedirected : 'LỖI: Bấm Place Order nhưng không chuyển trang thành công.'
+                 WebUI.comment('Passed: Checkout thành công và đã redirect.')
+             } else {
+                 assert false : 'LỖI: Không tìm thấy nút Place Order tại trang /checkout.'
+             }
         } else {
-            WebUI.comment('LỖI: Nút Checkout không dẫn tới /checkout')
+            assert false : 'LỖI: Nút Checkout không dẫn tới /checkout'
         }
     }
 }
